@@ -1,0 +1,24 @@
+\usepackage{xcolor}
+
+\lstdefinelanguage{Faust}{
+    morekeywords={import, process, environment, declare, with, if, else, while, for, int, float, true, false},
+    sensitive=true,
+    morecomment=[l]{//}, % Line comment
+    morecomment=[s]{/*}{*/}, % Block comment
+    morestring=[b]", % Strings
+}
+
+% Customize the appearance of the code
+\lstset{
+    language=Faust,
+    backgroundcolor=\color{lightgray!20},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    stringstyle=\color{orange},
+    commentstyle=\color{green}\itshape,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny,
+    frame=single,
+    breaklines=true
+}

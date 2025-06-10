@@ -21,7 +21,21 @@
 \usepackage{csquotes}
 \usepackage{makecell}
 \usepackage{pdfpages}
+\input{code_style}
 
+\captionsetup[lstlisting]{justification=centering, singlelinecheck=false}
+\providecommand{\gls}[1]{#1}
+\definecolor{highlight}{RGB}{00,150,00}
+\definecolor{todo}{RGB}{200,50,00}
+\newcommand{\SIMSESpec}{\texttt{SIMSE\_Spec}}
+\newcommand{\LoneSpec}{\texttt{L1\_Spec}}
+\newcommand{\JTFS}{\texttt{JTFS}}
+\newcommand{\DTWEnv}{\texttt{DTW\_Envelope}}
+\newcommand{\OutDomain}{\textbf{Out-Domain Generation}}
+\newcommand{\BPNoise}{\textbf{BP-Noise}}  
+\newcommand{\AddSineSaw}{\textbf{Add-SineSaw}}  
+\newcommand{\AmpMod}{\textbf{Noise-AM}}  
+\newcommand{\FMMod}{\textbf{SineSaw-AM}}  
 
 \title{Out of Domain Experiments in Sound-Matching}
 % \author{asalimi }
@@ -31,7 +45,31 @@
 
 \maketitle
 
-\subsection{Why Are Out-of-Domain Experiments Difficult}
+
+\section{Experiment Setup}
+\label{sec:experiment_setup}
+% loss functions, target vs imitator, training loop
+300 sound-matching experiments are conducted and the MSS values are recorded after 200 iterations of the sound-matching loop. From the 300 targets and outputs, we select 40 examples for manual ranking. 
+
+
+\section{Out-of-Domain Examples}
+We look at some examples of out-of-domain sound-matching experiments, discuss the evaluation methods, and analyze the loss function landscapes. 
+
+
+\subsection{AM-Synthesizer matching with Non-Overlapping Frequencies}
+For this experiment, we choose two instances of \FMMod, with non-overlapping frequency ranges of 1-250 Hz for the target synth and 1000-5000 Hz for the imitator. Following the experiment setup in Section~\ref{sec:experiment_setup}, we show the manual and automatically assigned ranks.
+
+\subsubsection{A Closer Look at the Loss Function Landscapes}
+
+
+\begin{lstlisting}[caption={\FMMod. "{Low Freq}" and "{High Freq}" are replaced with the lowest and highest allowed frequencies for the synth.}, label={lst:program3},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+import("stdfaust.lib");
+carrier = hslider("carrier",100,"{Low Freq}","{High Freq}",1);
+amp = hslider("amp",6,1,20,1);
+sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(2*ma.PI) : sin;
+sawOsc(f) = +(f/ma.SR) ~ ma.frac;
+process = sineOsc(amp)*sawOsc(carrier);
+\end{lstlisting}
 
 \bibliographystyle{alpha}
 \bibliography{references}
