@@ -56,19 +56,33 @@
 We look at some examples of out-of-domain sound-matching experiments, discuss the evaluation methods, and analyze the loss function landscapes. 
 
 
-\subsection{AM-Synthesizer matching with Non-Overlapping Frequencies}
-For this experiment, we choose two instances of \FMMod, with non-overlapping frequency ranges of 1-250 Hz for the target synth and 1000-5000 Hz for the imitator. Following the experiment setup in Section~\ref{sec:experiment_setup}, we show the manual and automatically assigned ranks.
+\subsection{AM-Synthesizer Matching}
+We try out three different scenarios of out-of-domain sound-matching with AM-Synthesizers. \FMMod~as described in Listing~\ref{lst:program3} and \FMMod-\textbf{V2} described in Listing~\ref{lst:program3_v2} are the basis of these experiments. \FMMod~generates a sound by modifying the amplitude of a saw oscillator with a low frequency sine oscillator.\FMMod-\textbf{V2} is a modification which uses sine oscillators for both the carrier and the modulator. 
 
-\subsubsection{A Closer Look at the Loss Function Landscapes}
+\subsubsection{Non-Overlapping frequencies}
+For this experiment, we choose two instances of \FMMod-\textbf{V2}, with non-overlapping frequency ranges of 1-250 Hz for the target synth and 1000-5000 Hz for the imitator. Here, the carrier is simply a sine oscillator so clashing of higher harmonics cannot cause confusion in the loss function landscape. This setup emphasis matching the amplitude modulation frequency, as the carrier frequencies could not possibly match (although one could argue that getting the carrier frequencies as close as possible could be a goal). We see immediately why out-of-domain experiments are difficult, as describing sound similarity can be quite subjective. 
+
+\subsubsection{Non-Overlapping frequencies}
 
 
-\begin{lstlisting}[caption={\FMMod. "{Low Freq}" and "{High Freq}" are replaced with the lowest and highest allowed frequencies for the synth.}, label={lst:program3},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+
+
+\begin{lstlisting}[caption={\FMMod}, label={lst:program3},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
 import("stdfaust.lib");
-carrier = hslider("carrier",100,"{Low Freq}","{High Freq}",1);
-amp = hslider("amp",6,1,20,1);
+carrier = hslider("carrier",car_a,car_b,car_c,1);
+amp = hslider("amp",amp_a,amp_b,amp_c,1);
 sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(2*ma.PI) : sin;
 sawOsc(f) = +(f/ma.SR) ~ ma.frac;
 process = sineOsc(amp)*sawOsc(carrier);
+\end{lstlisting}
+
+
+\begin{lstlisting}[caption={\FMMod-\textbf{V2}}, label={lst:program3_v2},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+import("stdfaust.lib");
+carrier = hslider("carrier",car_a,car_b,car_c,1);
+amp = hslider("amp",amp_a,amp_b,amp_c,1);
+sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(2*ma.PI) : sin;
+process = sineOsc(amp)*sineOsc(carrier);
 \end{lstlisting}
 
 \bibliographystyle{alpha}
