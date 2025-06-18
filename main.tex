@@ -21,21 +21,23 @@
 \usepackage{csquotes}
 \usepackage{makecell}
 \usepackage{pdfpages}
+\usepackage{xspace}
 \input{code_style}
 
 \captionsetup[lstlisting]{justification=centering, singlelinecheck=false}
 \providecommand{\gls}[1]{#1}
 \definecolor{highlight}{RGB}{00,150,00}
 \definecolor{todo}{RGB}{200,50,00}
-\newcommand{\SIMSESpec}{\texttt{SIMSE\_Spec}}
-\newcommand{\LoneSpec}{\texttt{L1\_Spec}}
-\newcommand{\JTFS}{\texttt{JTFS}}
-\newcommand{\DTWEnv}{\texttt{DTW\_Envelope}}
-\newcommand{\OutDomain}{\textbf{Out-Domain Generation}}
-\newcommand{\BPNoise}{\textbf{BP-Noise}}  
-\newcommand{\AddSineSaw}{\textbf{Add-SineSaw}}  
-\newcommand{\AmpMod}{\textbf{Noise-AM}}  
-\newcommand{\FMMod}{\textbf{SineSaw-AM}}  
+\newcommand{\SIMSESpec}{\texttt{SIMSE\_Spec}\xspace}
+\newcommand{\LoneSpec}{\texttt{L1\_Spec}\xspace}
+\newcommand{\JTFS}{\texttt{JTFS}\xspace}
+\newcommand{\DTWEnv}{\texttt{DTW\_Envelope}\xspace}
+\newcommand{\OutDomain}{\textbf{Out-Domain Generation}\xspace}
+\newcommand{\BPNoise}{\textbf{BP-Noise}\xspace}
+\newcommand{\AddSineSaw}{\textbf{Add-SineSaw}\xspace}
+\newcommand{\AmpMod}{\textbf{Noise-AM}\xspace}
+\newcommand{\FMMod}{\textbf{SineSaw-AM}\xspace}
+\newcommand{\FMModvtwo}{\textbf{SineSine-AM}\xspace}
 
 \title{Out of Domain Experiments in Sound-Matching}
 % \author{asalimi }
@@ -57,12 +59,18 @@ We look at some examples of out-of-domain sound-matching experiments, discuss th
 
 
 \subsection{AM-Synthesizer Matching}
-We try out three different scenarios of out-of-domain sound-matching with AM-Synthesizers. \FMMod~as described in Listing~\ref{lst:program3} and \FMMod-\textbf{V2} described in Listing~\ref{lst:program3_v2} are the basis of these experiments. \FMMod~generates a sound by modifying the amplitude of a saw oscillator with a low frequency sine oscillator.\FMMod-\textbf{V2} is a modification which uses sine oscillators for both the carrier and the modulator. 
+\label{sec:am_sound_matching}
+We try out three different scenarios of out-of-domain sound-matching with AM-Synthesizers. \FMMod is described in Listing~\ref{lst:program3} and \FMModvtwo described in Listing~\ref{lst:program3_v2} are the basis of these experiments. \FMMod generates a sound by modifying the amplitude of a saw oscillator with a sinusoidal LFO. \FMModvtwo is a modification which uses sine oscillators for both the carrier and the modulator. In this section, we will refer to the LFO frequency as \texttt{amp} and carrier frequency as \texttt{car}. The value of \texttt{amp} shapes the amplitude of the sound (or the wobbling effect), and \texttt{car} determines the frequency of the sound.
+
 
 \subsubsection{Non-Overlapping frequencies}
-For this experiment, we choose two instances of \FMMod-\textbf{V2}, with non-overlapping frequency ranges of 1-250 Hz for the target synth and 1000-5000 Hz for the imitator. Here, the carrier is simply a sine oscillator so clashing of higher harmonics cannot cause confusion in the loss function landscape. This setup emphasis matching the amplitude modulation frequency, as the carrier frequencies could not possibly match (although one could argue that getting the carrier frequencies as close as possible could be a goal). We see immediately why out-of-domain experiments are difficult, as describing sound similarity can be quite subjective. 
+\label{sec:am_sound_matching_nonoverlapping}
+For this experiment, we choose two instances of \FMModvtwo, with the carriers having non-overlapping frequency ranges of 30-250 Hz for the target synth and 1000-5000 Hz for the imitator. Here, the carrier is simply a sine oscillator so clashing of higher harmonics cannot cause confusion in the loss function landscape. Since there is no overlap in the carrier frequency ranges, the tone of the imitator and target synth can never match, making this a simple out-of-domain scenario. A question we have to consider is: how would we match the sounds manually? We see immediately why out-of-domain experiments are difficult, as describing sound similarity can be quite subjective. 
 
-\subsubsection{Non-Overlapping frequencies}
+Since the carrier frequencies could not possibly match, it is clear that matching the \texttt{amp} values should be the main goal. Matching the carrier frequencies is not as clear. Although the distances between the frequencies can be reduced, there will always be a gap. What's more, matching musical notes is not simply a matter of frequency values. For example, if we consider the commonly used equal temperament tuning system~\cite{sethares2005tuning}, a the A4 note is commonly associated with 440 Hz. In this system, if the target synth is producing a frequency at 440 Hz, and the imitator can only produce values below 400 Hz, then it can be argued that the value of 220 Hz corresponding to A3 is a better match than the value of 392 Hz, corresponding to G4. Considering the commonly used logarithmic scaling of musical notes, it can be argued that the best matches for any frequency $f$ are $f*2^{n}$, where n is any integer~\cite{young1939terminology}. 
+
+
+\subsubsection{}
 
 
 
@@ -77,7 +85,7 @@ process = sineOsc(amp)*sawOsc(carrier);
 \end{lstlisting}
 
 
-\begin{lstlisting}[caption={\FMMod-\textbf{V2}}, label={lst:program3_v2},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+\begin{lstlisting}[caption={\FMModvtwo}, label={lst:program3_v2},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
 import("stdfaust.lib");
 carrier = hslider("carrier",car_a,car_b,car_c,1);
 amp = hslider("amp",amp_a,amp_b,amp_c,1);
