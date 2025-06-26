@@ -1,4 +1,5 @@
 \documentclass[12pt, oneside]{article} % for thesis
+\usepackage[top=1in, bottom=1in, left=1.25in, right=1in]{geometry}
 % \documentclass[twocolumn,10pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{natbib}
@@ -22,6 +23,8 @@
 \usepackage{makecell}
 \usepackage{pdfpages}
 \usepackage{xspace}
+\usepackage{subcaption}  % Add this to your preamble
+
 \input{code_style}
 
 \captionsetup[lstlisting]{justification=centering, singlelinecheck=false}
@@ -41,6 +44,7 @@
 \newcommand{\AmpMod}{\textbf{Noise-AM}\xspace}
 \newcommand{\FMMod}{\textbf{SineSaw-AM}\xspace}
 \newcommand{\FMModvtwo}{\textbf{SineSine-AM}\xspace}
+\newcommand{\PitchBendUp}{\textbf{PitchBend-Up}\xspace}
 
 \title{Out of Domain Experiments in Sound-Matching}
 % \author{asalimi }
@@ -144,22 +148,77 @@ What is quite clear, is that in these scenarios, proximity of \texttt{amp} value
 \label{sec:am_sound_matching_nonoverlapping}
 For this experiment, we choose two instances of \FMModvtwo, with the carriers having non-overlapping frequency ranges of 30-250 Hz for the target synth and 1000-5000 Hz for the imitator. Here, the carrier is simply a sine oscillator so clashing of higher harmonics cannot cause confusion in the loss function landscape. Since there is no overlap in the carrier frequency ranges, the tone of the imitator and target synth can never match, making this a simple out-of-domain scenario. 
 
-As expected, \DTWEnv outperforms other loss functions as shown in Figure~\ref{fig:am_v1}. 
+As expected, \DTWEnv outperforms other loss functions as shown on the left in Figure~\ref{fig:am_v123}. 
 
 \subsubsection{Sine Target, Saw Imitator}
 \label{sec:am_sinetarget_sawimitate}
-In this scenario, we select \FMModvtwo as the target, and \FMMod as the imitator, both with \texttt{amp} ranges of 1-15 Hz and \texttt{car} range of 30-5000 Hz. Here we again see that the \DTWEnv function performs the best as shown in Figure~\ref{fig:am_v2}.
+In this scenario, we select \FMModvtwo as the target, and \FMMod as the imitator, both with \texttt{amp} ranges of 1-15 Hz and \texttt{car} range of 30-5000 Hz. Here we again see that the \DTWEnv function performs the best as shown in the middle of Figure~\ref{fig:am_v123}.
 
 
 \subsubsection{Saw Target, Sine Imitator}
 \label{sec:am_sawtarget_sineimitate}
-This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also see here that \DTWEnv is the best performer, as shown in Figure~\ref{fig:am_v3}.
+This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also see here that \DTWEnv is the best performer, as shown on the right in Figure~\ref{fig:am_v123}.
 
-\input{extra_figures/am_scenario_v1}
-\input{extra_figures/am_scenario_v2}
-\input{extra_figures/am_scenario_v3}
+\begin{figure}[t]
+  \centering
+  \subfloat[AM-Synthesizer matching results. Bootstrapped distributions and ranks given by NPSK.\label{fig:npsk_p0}]{
+    \begin{minipage}[t]{\textwidth}
+      % Left-side labels
+      \begin{minipage}[t]{0.045\textwidth}
+        \footnotesize\raggedleft
+        \vspace{-2.75cm} % align with top of images
+        SIMSE\\[0.4cm]
+        L1\\[0.385cm]
+        JTFS\\[0.365cm]
+        DTW
+      \end{minipage}%
+      \hspace{0.01\textwidth}%
+      % Right side: images + captions
+      \begin{minipage}[t]{0.91\textwidth}
+      \label{fig:am_v123}
+        \centering
+        \begin{minipage}[t]{0.31\textwidth}
+          \centering
+          \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_0.png}
+          \vspace{0.3em}
+          \footnotesize Non-Overlapping Frequencies
+        \end{minipage}
+        \hspace{0.015\textwidth}%
+        \begin{minipage}[t]{0.31\textwidth}
+          \centering
+          \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_1.png}
+          \vspace{0.3em}
+          \footnotesize Sine Target, Saw Imitator
+        \end{minipage}
+        \hspace{0.01\textwidth}%
+        \begin{minipage}[t]{0.31\textwidth}
+          \centering
+          \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_2.png}
+          \vspace{0.3em}
+          \footnotesize Saw Target, Sine Imitator
+        \end{minipage}
+      \end{minipage}
+    \end{minipage}
+  }
+  \caption{Bootstrapped distributions and ranks for \BPNoise~under different settings.}
+\end{figure}
 
 
+
+
+\subsection{Delayed Pitch-Bending}
+In this scenario, we create a synthesizer that replicates key characteristics of a chirplet synthesizer, as described by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. This synthesizer is a sine wave with a starting pitch. After a time delay of 5000-30000 samples (the sampling rate is set to 48000), an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds.
+
+
+\begin{lstlisting}[caption={\PitchBendUp}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+import("stdfaust.lib");
+increase_speed = hslider("increase_speed",20,1,20,0.1);
+starting_pitch = hslider("starting_pitch",200,30,500,0.1);
+sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(3*ma.PI):sin;
+increasing_pitch(rate) = _ ~+(rate/ma.SR):exp;
+process = sineOsc(increasing_pitch(increase_speed):de.delay({random_value,48000)+starting_pitch);
+
+\end{lstlisting}
 
 \clearpage
 \bibliographystyle{alpha}
