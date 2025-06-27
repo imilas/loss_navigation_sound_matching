@@ -1,4 +1,7 @@
 \usepackage{xcolor}
+\usepackage[utf8]{inputenc}       % For UTF-8 encoding
+\usepackage{listings}
+\usepackage{amsmath}              % Optional: for math symbols
 
 \lstdefinelanguage{Faust}{
     morekeywords={import, process, environment, declare, with, if, else, while, for, int, float, true, false},
@@ -20,5 +23,7 @@
     numbers=left,
     numberstyle=\tiny,
     frame=single,
-    breaklines=true
+    breaklines=true,
+      basicstyle=\ttfamily,
+  % literate={\delta}{{\(\delta\)}},
 }
