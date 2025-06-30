@@ -1,6 +1,7 @@
-\documentclass[12pt, oneside]{article} % for thesis
-\usepackage[top=1in, bottom=1in, left=1.25in, right=1in]{geometry}
-% \documentclass[twocolumn,10pt]{article}
+\documentclass{article} % for thesis
+% \documentclass[twocolumn,11pt]{article}
+% \usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}
+\usepackage{spconf}
 \usepackage[utf8]{inputenc}
 \usepackage{natbib}
 \usepackage{graphicx}
@@ -23,7 +24,11 @@
 \usepackage{makecell}
 \usepackage{pdfpages}
 \usepackage{xspace}
-% \usepackage{subcaption}  % Add this to your preamble
+
+
+% to do:
+% a few more scenarios
+% hearing tests
 
 \input{code_style}
 
@@ -47,21 +52,27 @@
 \newcommand{\PitchBendUp}{\textbf{PitchBend-Up}\xspace}
 
 \title{Out of Domain Experiments in Sound-Matching}
-% \author{asalimi }
-% \date{May 2025}
-
 \begin{document}
 
-\author{Amir Salimi}
+% \author{Amir Salimi, Abram Hindle, Osmar R. Za{\"i}ane}
+
+\name{Amir Salimi, Abram Hindle, Osmar R. Za{\"i}ane}
+\address{University of Alberta}
+
 \maketitle
 
 \begin{abstract}
-    We have previously presented a series of in-domain sound-matching tasks which show that the selection of loss functions in sound-matching is dependent on the synthesizers and sounds being approximated. Out-of-domain sound-matching refers to automatically programming a synthesizer towards a sound that it cannot accurately replicate. Measuring performance in out-of-domain sound-matching is a difficult task as they often involve an element of subjectivity. Here we present a series of out-of-domain tasks using four loss functions and synthesizers with non-overlapping functionalities.  
+    We previously presented in-domain sound-matching experiments showing that the selection of loss functions in sound-matching is dependent on the synthesizers and sounds being approximated. Out-of-domain sound-matching refers to automatically programming a synthesizer towards a sound that it cannot accurately replicate. Measuring performance in out-of-domain sound-matching is a difficult task as they often involve an element of subjectivity. Here we present a series of out-of-domain tasks using four loss functions and synthesizers with non-overlapping functionalities. The experiments here are designed such that differences in parameters (whether all parameters or a subset) are well suited for measuring performance in sound-matching. The out-of-domain experiments here confirm that the success of loss functions is highly dependent on the method of synthesis. 
 \end{abstract}
+
+\section{Introduction}
+In our previous work, we presented a number of sound-matching experiments which suggest that the selection of the best performing loss functions for sound-matching is highly dependent on the method of synthesis~\cite{salimi2025soundmatching}. Much like the majority of previous works in sound-matching, the experiments were in-domain, that is, the synthesizer is capable of perfect replication of the target sound. We noted the lack of out-of-domain experiments as a weakness not only in our previous work, but in the field of sound-matching as a whole. Here, we present a number of sound-matching experiments where the synthesizers are not capable of complete replication of the target sound. 
+
+
 \section{Experiment Setup}
 \label{sec:experiment_setup}
 % loss functions, target vs imitator, training loop
-300 sound-matching experiments are conducted and the MSS values are recorded after 200 iterations of the sound-matching loop. From the 300 targets and outputs, we select 40 examples for manual ranking. 
+For each combination of synthesizer program and loss function, 300 sound-matching experiments are conducted and the automatic evaluation evaluation values are recorded after 200 iterations of the sound-matching loop. From the 300 targets and outputs, we select 40 examples for manual ranking. 
 
 
 \section{Out-of-Domain Examples}
@@ -72,7 +83,7 @@ In this scenario, the two synthesizers are the application of band-passing to no
  
  Here we use \BPSaw as the target synthesizer, and \BPNoise as the imitator. We define success in sound-matching here as the proximity of the imitator's high and low-pass cutoffs to that of the target. This allows for P-Loss to become an objective measure of success. With this objective, we see that \SIMSESpec is once again the clear best performing loss function.
 
- \begin{figure*}[p]
+ \begin{figure*}[htbp]
   \centering
   % 1st row
     \begin{minipage}{\textwidth}
@@ -159,11 +170,7 @@ This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also 
 
 \input{extra_figures/am_scenarios}
 
-\subsection{Delayed Pitch-Bending}
-In this scenario, we create a synthesizer that replicates key characteristics of a chirplet synthesizer, as described by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. This synthesizer is a sine wave with a starting pitch. After a time delay of 5000-30000 samples (the sampling rate is set to 48000), an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds.
-
-
- \begin{figure*}[p]
+ \begin{figure*}[tbp]
   \centering
   % 1st row
     \begin{minipage}{\textwidth}
@@ -181,20 +188,32 @@ In this scenario, we create a synthesizer that replicates key characteristics of
         \hspace{0.03\textwidth}%
       \end{minipage}
     \end{minipage}
-     \caption{Bootstrapped distributions and ranks for band-pass sound matching.}
+     \caption{Bootstrapped distributions and ranks for delayed pitch-bending}
   \label{fig:npsk_pitch_bend_up_delayed}
   
 \end{figure*}
 
-\begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp, when an instance of the synthezier is created, $\delta$ is randomly assigned a value between 5000-30000 samples}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+\subsection{Delayed Pitch-Bending}
+In this scenario, we create a synthesizer that replicates key characteristics of a chirplet synthesizer, as described by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. This synthesizer is a sine wave with a starting pitch. After a time delay of 5000-30000 samples (the sampling rate is set to 48000), an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds, making this an out-of-domain example.
+
+Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset. Figure~\ref{fig:npsk_pitch_bend_up_delayed} shows that \JTFS is the best performing loss function, which is consistent with the previous findings by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}.
+
+\begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp program. when an instance of the synthezier is created, $\delta$ is randomly assigned a value between 5000-30000 samples}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
 import("stdfaust.lib");
-increase_speed = hslider("increase_speed",20,1,20,0.1);
+increase_speed = hslider("increase_speed",2,1,20,0.1);
 starting_pitch = hslider("starting_pitch",200,30,500,0.1);
 sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(3*ma.PI):sin;
 increasing_pitch(rate) = _ ~+(rate/ma.SR):exp;
 process = sineOsc(increasing_pitch(increase_speed):de.delay((*$\delta$*),48000)+starting_pitch);
 
 \end{lstlisting}
+
+
+\subsection{Conclusion and Summary}
+We presented different out-of-domain sound-matching scenarios, and saw that the success of the loss functions was highly dependent on the method of synthesis. This further solidifies our previous work which advocated against the search for a universally optimal loss function for sound~\cite{salimi2025soundmatching}.
+
+
+
 
 \clearpage
 \bibliographystyle{alpha}
