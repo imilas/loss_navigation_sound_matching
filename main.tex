@@ -171,29 +171,6 @@ This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also 
 
 \input{extra_figures/am_scenarios}
 
- \begin{figure*}[tbp]
-  \centering
-  % 1st row
-    \begin{minipage}{\textwidth}
-      % left‐column labels
-      \begin{minipage}{0.03\textwidth}
-        \footnotesize\raggedleft
-        \vspace{0.5cm}
-        SIMSE\\[0.6cm]
-        L1\\[0.65cm]
-        JTFS\\[0.65cm]
-        DTW
-      \end{minipage}%
-      \begin{minipage}{0.96\textwidth}\centering
-        \includegraphics[width=0.45\textwidth]{images/npsk_ood_P_Loss_4.png}%
-        \hspace{0.03\textwidth}%
-      \end{minipage}
-    \end{minipage}
-     \caption{Bootstrapped distributions and ranks for delayed pitch-bending}
-  \label{fig:npsk_pitch_bend_up_delayed}
-  
-\end{figure*}
-
 \begin{figure*}[t]
   \centering
   \begin{minipage}[t]{\textwidth}
@@ -214,7 +191,7 @@ This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also 
         \centering
         \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_5.png}
         \vspace{0.3em}
-        \footnotesize Non-delayed Pitch-bend
+        \footnotesize Pulsating Pitch-bend
       \end{minipage}
       \hspace{0.015\textwidth}%
       \begin{minipage}[t]{0.45\textwidth}
@@ -225,16 +202,16 @@ This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also 
       \end{minipage}
     \end{minipage}
   \end{minipage}
-  \caption{Bootstrapped distributions and ranks for non-delayed and randomly delayed pitch-bend programs.}
-  \label{fig:npsk_am_synths}
+  \caption{Bootstrapped distributions and ranks for non-delayed and randomly delayed pitch-bend programs. \todo{It's strange that in-domain has lower performance scores than delayed pitch-bend}}
+  \label{fig:npsk_pitch-bends}
 \end{figure*}
+
 \subsection{Delayed Pitch-Bending}
 In this scenario, we create a synthesizer that replicates some of the key characteristics of a chirplet synthesizer~\cite{vahidi2023mesostructures} \todo{which does what?}. The program here is a sine wave with a steady starting pitch for a random amount of time; after a time delay of 5000-30000 samples (the sampling rate is set to 48000), an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds, making this an out-of-domain example.
 
-Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset. Figure~\ref{fig:npsk_pitch_bend_up_delayed} shows that \JTFS is the best performing loss function, which is consistent with the previous findings by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. 
+Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset. Figure~\ref{fig:npsk_pitch-bends} the right side shows that \JTFS is the best performing loss function, which is consistent with the previous findings by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. 
 
-An interesting follow-up experiment conducted was the \textit{in-domain} comparison of pitch-bending synthesizers \textit{without} delay. This is identical to the delayed pitch-bending experiment but setting the delay variable $\delta=0$. 
-
+An interesting follow-up experiment conducted was the \textit{in-domain} comparison of pitch-bending synthesizers \textit{without} delay. This is identical to the delayed pitch-bending experiment but setting the delay variable $\delta=0$. The left side of Figure~\ref{fig:npsk_pitch-bends} shows that \DTWEnv is the better performer in the in-domain scenario.
 
 \begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp program. when an instance of the synthezier is created, $\delta$ is randomly assigned a value between 5000-30000 samples}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
 import("stdfaust.lib");
