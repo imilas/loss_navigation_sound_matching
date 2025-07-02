@@ -1,7 +1,8 @@
 \documentclass{article} % for thesis
 % \documentclass[twocolumn,11pt]{article}
-% \usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}
-\usepackage{spconf}
+\usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}
+
+% \usepackage{spconf}
 \usepackage[utf8]{inputenc}
 \usepackage{natbib}
 \usepackage{graphicx}
@@ -54,10 +55,10 @@
 \title{Out of Domain Experiments in Sound-Matching}
 \begin{document}
 
-% \author{Amir Salimi, Abram Hindle, Osmar R. Za{\"i}ane}
+\author{Amir Salimi, Abram Hindle, Osmar R. Za{\"i}ane}
 
-\name{Amir Salimi, Abram Hindle, Osmar R. Za{\"i}ane}
-\address{University of Alberta}
+% \name{Amir Salimi, Abram Hindle, Osmar R. Za{\"i}ane}
+% \address{University of Alberta}
 
 \maketitle
 
@@ -193,10 +194,47 @@ This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also 
   
 \end{figure*}
 
+\begin{figure*}[t]
+  \centering
+  \begin{minipage}[t]{\textwidth}
+    % Left-side labels
+    \begin{minipage}[t]{0.045\textwidth}
+      \footnotesize\raggedleft
+      \vspace{-4.5cm} % align with top of images
+      SIMSE\\[0.4cm]
+      L1\\[0.385cm]
+      JTFS\\[0.365cm]
+      DTW
+    \end{minipage}%
+    \hspace{0.01\textwidth}%
+    % Right side: images + captions
+    \begin{minipage}[t]{0.91\textwidth}
+      \centering
+      \begin{minipage}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_5.png}
+        \vspace{0.3em}
+        \footnotesize Non-delayed Pitch-bend
+      \end{minipage}
+      \hspace{0.015\textwidth}%
+      \begin{minipage}[t]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_4.png}
+        \vspace{0.3em}
+        \footnotesize Delayed Pitch-Bend
+      \end{minipage}
+    \end{minipage}
+  \end{minipage}
+  \caption{Bootstrapped distributions and ranks for non-delayed and randomly delayed pitch-bend programs.}
+  \label{fig:npsk_am_synths}
+\end{figure*}
 \subsection{Delayed Pitch-Bending}
-In this scenario, we create a synthesizer that replicates key characteristics of a chirplet synthesizer, as described by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. This synthesizer is a sine wave with a starting pitch. After a time delay of 5000-30000 samples (the sampling rate is set to 48000), an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds, making this an out-of-domain example.
+In this scenario, we create a synthesizer that replicates some of the key characteristics of a chirplet synthesizer~\cite{vahidi2023mesostructures} \todo{which does what?}. The program here is a sine wave with a steady starting pitch for a random amount of time; after a time delay of 5000-30000 samples (the sampling rate is set to 48000), an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds, making this an out-of-domain example.
 
-Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset. Figure~\ref{fig:npsk_pitch_bend_up_delayed} shows that \JTFS is the best performing loss function, which is consistent with the previous findings by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}.
+Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset. Figure~\ref{fig:npsk_pitch_bend_up_delayed} shows that \JTFS is the best performing loss function, which is consistent with the previous findings by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. 
+
+An interesting follow-up experiment conducted was the \textit{in-domain} comparison of pitch-bending synthesizers \textit{without} delay. This is identical to the delayed pitch-bending experiment but setting the delay variable $\delta=0$. 
+
 
 \begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp program. when an instance of the synthezier is created, $\delta$ is randomly assigned a value between 5000-30000 samples}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
 import("stdfaust.lib");
