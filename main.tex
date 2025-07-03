@@ -69,6 +69,27 @@
 \section{Introduction}
 In our previous work, we presented a number of sound-matching experiments which suggest that the selection of the best performing loss functions for sound-matching is highly dependent on the method of synthesis~\cite{salimi2025soundmatching}. Much like the majority of previous works in sound-matching, the experiments were in-domain, that is, the synthesizer is capable of perfect replication of the target sound. We noted the lack of out-of-domain experiments as a weakness not only in our previous work, but in the field of sound-matching as a whole. Here, we present a number of sound-matching experiments where the synthesizers are not capable of complete replication of the target sound. 
 
+\section{Motivation}
+
+
+\begin{figure}[htbp]
+    \centering
+    \begin{subfigure}[b]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/ood_motivation_time_alignment_doodle.png}
+        \caption{First image.}
+        \label{fig:sub1}
+    \end{subfigure}
+    \hspace{0.05\linewidth}
+    \begin{subfigure}[b]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/ood_motivation_frequency_alignment_doodle.png}
+        \caption{Second image.}
+        \label{fig:sub2}
+    \end{subfigure}
+    \caption{Two side-by-side images.}
+    \label{fig:twoside}
+\end{figure}
 
 \section{Experiment Setup}
 \label{sec:experiment_setup}
@@ -177,7 +198,7 @@ This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also 
     % Left-side labels
     \begin{minipage}[t]{0.045\textwidth}
       \footnotesize\raggedleft
-      \vspace{-4.5cm} % align with top of images
+      \vspace{-3cm} % align with top of images
       SIMSE\\[0.4cm]
       L1\\[0.385cm]
       JTFS\\[0.365cm]
@@ -187,14 +208,21 @@ This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also 
     % Right side: images + captions
     \begin{minipage}[t]{0.91\textwidth}
       \centering
-      \begin{minipage}[t]{0.45\textwidth}
+      \begin{minipage}[t]{0.31\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_6.png}
+        \vspace{0.3em}
+        \footnotesize No-delay Pitch-bend
+      \end{minipage}
+      \hspace{0.015\textwidth}%
+      \begin{minipage}[t]{0.31\textwidth}
         \centering
         \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_5.png}
         \vspace{0.3em}
         \footnotesize Pulsating Pitch-bend
       \end{minipage}
-      \hspace{0.015\textwidth}%
-      \begin{minipage}[t]{0.45\textwidth}
+            \hspace{0.015\textwidth}%
+      \begin{minipage}[t]{0.31\textwidth}
         \centering
         \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_4.png}
         \vspace{0.3em}
@@ -202,7 +230,7 @@ This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also 
       \end{minipage}
     \end{minipage}
   \end{minipage}
-  \caption{Bootstrapped distributions and ranks for non-delayed and randomly delayed pitch-bend programs. \todo{It's strange that in-domain has lower performance scores than delayed pitch-bend}}
+  \caption{Bootstrapped distributions and ranks for non-delayed and randomly delayed pitch-bend programs.}
   \label{fig:npsk_pitch-bends}
 \end{figure*}
 
@@ -226,9 +254,6 @@ process = sineOsc(increasing_pitch(increase_speed):de.delay((*$\delta$*),48000)+
 
 \subsection{Conclusion and Summary}
 We presented different out-of-domain sound-matching scenarios, and saw that the success of the loss functions was highly dependent on the method of synthesis. This further solidifies our previous work which advocated against the search for a universally optimal loss function for sound~\cite{salimi2025soundmatching}.
-
-
-
 
 \clearpage
 \bibliographystyle{alpha}
