@@ -1,7 +1,7 @@
 \documentclass{article} % for thesis
-% \documentclass[twocolumn,11pt]{article}
-\usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}
 
+\usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}
+% \documentclass[twocolumn,9pt]{article}
 % \usepackage{spconf}
 \usepackage[utf8]{inputenc}
 \usepackage{natbib}
@@ -171,7 +171,7 @@ We try out three different scenarios of out-of-domain sound-matching with AM-Syn
 
 In these scenarios, the \texttt{amp} values can match, but the frequency content cannot, either because the range of available frequencies are different (scenario 1) or the imitator can only make sine tones while the target can only makes saw waves, and vice versa (scenarios 2 and 3). A question we have to consider is: how would we match the sounds manually? We see immediately why out-of-domain experiments are difficult, as describing sound similarity can be quite subjective.
 
-If the carrier notes could not possibly match, the best method for matching the carrier frequencies is not clear. Although the distances between the frequencies can be reduced, there will always be a gap. What's more, matching musical notes is not simply a matter of frequency values. For example, let's consider the commonly used equal temperament tuning system~\cite{sethares2005tuning}, where the A4 note is usually associated with 440 Hz. In this system, if the target synth is producing a frequency at 440 Hz, and the imitator can only produce values below 400 Hz, then based on the sound-designers needs, it might be that the value of 220 Hz corresponding to A3 is a better match than the value of 392 Hz, corresponding to G4. In general, considering the commonly used logarithmic scaling of musical notes, it can be argued that the best matches for any frequency $f$ are $f*2^{n}$, where n is any integer~\cite{young1939terminology}. \highlight{This ties back into the hypothesis that the sinusoidal nature of sound can cause non-smooth loss functions.}
+If the carrier frequencies could not possibly match (as in scenario 1), the best method for matching the carrier frequencies is not clear. Although the distances between the frequencies can be reduced, there will always be a gap. What's more, matching musical notes is not simply a matter of frequency values. For example, let's consider the commonly used equal temperament tuning system~\cite{sethares2005tuning}, where the A4 note is usually associated with 440 Hz. In this system, if the target synth is producing a frequency at 440 Hz, and the imitator can only produce values below 400 Hz, then based on the sound-designers needs, it might be that the value of 220 Hz corresponding to A3 is a better match than the value of 392 Hz, corresponding to G4. In general, considering the commonly used logarithmic scaling of musical notes, it can be argued that the best matches for any frequency $f$ are $f*2^{n}$, where n is any integer~\cite{young1939terminology}. \highlight{This ties back into the hypothesis that the sinusoidal nature of sound can cause non-smooth loss functions.}
 
 What is quite clear, is that in these scenarios, proximity of \texttt{amp} values is a reasonable measure of success. Not only can the \texttt{amp} values between the imitator and target have the same range, but also transfer of the amplitude changes from one sample to another is a common sound-design task \cite{engel2020ddsp}.  
 
@@ -210,7 +210,7 @@ This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also 
       \centering
       \begin{minipage}[t]{0.31\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_6.png}
+        \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_4.png}
         \vspace{0.3em}
         \footnotesize No-delay Pitch-bend
       \end{minipage}
@@ -224,7 +224,7 @@ This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also 
             \hspace{0.015\textwidth}%
       \begin{minipage}[t]{0.31\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_4.png}
+        \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_6.png}
         \vspace{0.3em}
         \footnotesize Delayed Pitch-Bend
       \end{minipage}
