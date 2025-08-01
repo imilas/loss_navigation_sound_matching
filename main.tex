@@ -1,8 +1,8 @@
 \documentclass{article} % for thesis
 
-\usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}
+% \usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}
 % \documentclass[twocolumn,9pt]{article}
-% \usepackage{spconf}
+\usepackage{spconf}
 \usepackage[utf8]{inputenc}
 \usepackage{natbib}
 \usepackage{graphicx}
@@ -53,7 +53,7 @@
 \newcommand{\FMModvtwo}{\textbf{SineSine-AM}\xspace}
 \newcommand{\PitchBendUp}{\textbf{PitchBend-Up}\xspace}
 
-\title{Out of Domain Experiments in Sound-Matching}
+\title{Selecting Loss Functions for Out-of-Domain Sound-Matching}
 \begin{document}
 
 \author{Amir Salimi, Abram Hindle, Osmar R. Za{\"i}ane}
@@ -64,11 +64,18 @@
 \maketitle
 
 \begin{abstract}
-    We previously presented in-domain sound-matching experiments showing that the selection of loss functions in sound-matching is dependent on the synthesizers and sounds being approximated. Out-of-domain sound-matching refers to automatically programming a synthesizer towards a sound that it cannot accurately replicate. Measuring performance in out-of-domain sound-matching is a difficult task as they often involve an element of subjectivity. Here we present a series of out-of-domain tasks using four loss functions and synthesizers with non-overlapping functionalities. The experiments here are designed such that differences in parameters (whether all parameters or a subset) are well suited for measuring performance in sound-matching. The out-of-domain experiments here confirm that the success of loss functions is highly dependent on the method of synthesis. 
+    Out-of-domain sound-matching refers to automatically programming a synthesizer towards a sound that it cannot accurately replicate. Measuring performance in out-of-domain sound-matching is a difficult task due reasons such as the subjective experience of sound, open-set recognition, etc. Here we present a series of out-of-domain tasks using four loss functions and synthesizers with non-overlapping functionalities. The experiments here are designed such that differences in parameters (whether all parameters or a subset) are well suited for measuring performance in sound-matching. The out-of-domain experiments here confirm that the success of loss functions is highly dependent on the method of synthesis and the target sound. 
 \end{abstract}
 
 \section{Introduction}
-In our previous work, we presented a number of sound-matching experiments which suggest that the selection of the best performing loss functions for sound-matching is highly dependent on the method of synthesis~\cite{salimi2025soundmatching}. Much like the majority of previous works in sound-matching, the experiments were in-domain, that is, the synthesizer is capable of perfect replication of the target sound. We noted the lack of out-of-domain experiments as a weakness not only in our previous work, but in the field of sound-matching as a whole. Here, we present a number of sound-matching experiments where the synthesizers are not capable of complete replication of the target sound. 
+Audio synthesizers are music instruments which utilize digital signal processing functions for the creation of sound. Synthesizers have different characteristics depending on which functions they utilize, and which parameters are given to those functions. One method of sound-design with a synthesizer involves the continual listening and modification of the parameters to approximate output sounds which have the desired characteristics of the target sound. Sound-matching is the task of automation this process.  
+
+Here, the target sound can be any sound that the sound-designer finds interesting or inspiring. A major discrepancy in past works in sound-matching and the process it aims to automate is that the target sounds are from sources other than the synthesizer itself (or out-of-domain) and the goal is not the replication of the sound, but imitation of a particular characteristic. The overwhelming majority of current literature on sound-matching has been centered around in-domain replication of sounds, where the target sound is the output of the synthesizer itself, and performance is measured by whether or not the target sound and the synthesizer's output are identical. 
+
+Defining success in out-of-domain sound-matching is difficult, as the goal becomes imitation of a subset of the target sound's characteristics. This issue calls for similarity metrics (or loss functions) which measure the similarity of those particular characteristics of interest. 
+
+
+In a previous work, we presented a number of sound-matching experiments which suggest that the selection of the best performing loss functions for sound-matching is highly dependent on the method of synthesis~\cite{salimi2025soundmatching}. Much like the majority of previous works in sound-matching, the experiments were in-domain, that is, the synthesizer is capable of perfect replication of the target sound (usually, the target sound is made by the synthesizer itself). We noted the lack of out-of-domain experiments as a weakness not only in our previous work, but in the field of sound-matching as a whole. Here, we present a number of sound-matching experiments where the synthesizers are not capable of complete replication of the target sound. 
 
 \section{Motivation}
 
