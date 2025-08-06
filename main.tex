@@ -25,7 +25,8 @@
 \usepackage{makecell}
 \usepackage{pdfpages}
 \usepackage{xspace}
-
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.geometric}
 
 % to do:
 % a few more scenarios
@@ -86,8 +87,39 @@ Parameter loss (or P-LOSS) has been frequently used in previous works for measur
 
 
 
-\section{Components}
-loss function, differentiable program, experiment
+
+\begin{figure}[ht]
+    \centering
+\begin{tikzpicture}[node distance=2cm, auto]
+
+    % Nodes
+    \node (start) [text centered] {\( g (\hat{\theta}) = x \)};
+    \node (L) [above of=start,right of=start, text centered] {\( L(\hat{\theta},t) {\ \propto \ } \phi(x) - \phi(t) \)};
+    \node (optimize) [below of=L,right of=L, text centered] {Optimize $\hat{\theta}$};
+    \node (new_theta) [below of=optimize,right of = start, text centered] {New \( \hat{\theta} \)};
+
+    % Highlight and arrow for the start node
+    \draw[->, very thick, red] (start) ++(-2,1.5) -- (start)
+        node[midway, below, align=center, sloped, color=red] {Start}
+        node[midway, above, align=center, sloped, color=red] {Random $\hat{\theta}$};
+        
+    % Arrows with multi-line labels
+    \draw[->, bend left] (start) to node[midway, right, align=center] {} (L);
+    \draw[->, bend left] (L) to node[midway, right, align=center] {} (optimize);
+    \draw[->, bend left] (optimize) to node[midway, below, align=center] {} (new_theta);
+    \draw[->, bend left] (new_theta) to node[midway, left, align=center] {} (start);
+
+\end{tikzpicture}
+    \caption{ Iterative approach to sound design, as presented in~\cite{salimi2025soundmatching}}
+    \label{fig:sound_design_loop_iterative}
+\end{figure}
+
+\section{Background}
+All sound-matching works require a synthesizer, a loss function, and a method for determining the correct parameters. Iterative sound-matching uses a feedback loop similar to the manual approach. To paraphrase the formal definition given in previous works~\cite{salimi2025soundmatching,vahidi2023mesostructures,han2023perceptual}, a synthesizer $g$ with arbitrary (in this case, random) initialized parameters $\hat{\theta}$, creates sound $x$. The target sound $t$ is used as the goal. In-domain sound-matching implies that there exists a parameter set $\theta^*$ such that $g(\theta^*)$ is perceptually equal to $y$, where as out-of-domain sound-matching requires that there is no such set of parameters. In any case, the parameters $\hat{\theta}$ are adjusted to minimize error (or loss) $L(\hat{\theta},t)$, where $L$ is proportional to the difference between the representations of $x$ and $t$. $\phi$ is the audio feature extractor, or representation function, algorithms derived from Fourier transformations such as short-time Fourier transforms (STFT) or MSS are the most common form of $\phi$.
+
+\subsection{Loss Functions}
+In-domain experiments have shown that in a differentiable, iterative sound-matching setting, different loss functions appear to be appropriate for different methods of synthesis~\cite{salimi2025soundmatching}. This work is the further analysis of the interplay between the same loss functions and synthesizers in out-of-domain settings. 
+
 
 \section{Experiment Setup}
 \label{sec:experiment_setup}
