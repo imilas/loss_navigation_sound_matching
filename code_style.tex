@@ -2,6 +2,8 @@
 \usepackage[utf8]{inputenc}       % For UTF-8 encoding
 \usepackage{listings}
 \usepackage{amsmath}              % Optional: for math symbols
+\usepackage{anyfontsize}
+\usepackage{graphicx} % required for \scalebox
 
 \lstdefinelanguage{Faust}{
     morekeywords={import, process, environment, declare, with, if, else, while, for, int, float, true, false},
@@ -15,15 +17,16 @@
 \lstset{
     language=Faust,
     backgroundcolor=\color{lightgray!20},
-    basicstyle=\ttfamily\small,
+    % basicstyle=\ttfamily\small,
+    basicstyle=\fontsize{8pt}{9pt}\selectfont\ttfamily,
     keywordstyle=\color{blue}\bfseries,
     stringstyle=\color{orange},
     commentstyle=\color{green}\itshape,
     showstringspaces=false,
-    numbers=left,
-    numberstyle=\tiny,
+    % numbers=left,
+    % numberstyle=\tiny,
     frame=single,
     breaklines=true,
-      basicstyle=\ttfamily,
+      % basicstyle=\ttfamily,
   % literate={\delta}{{\(\delta\)}},
 }
