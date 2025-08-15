@@ -1,0 +1,39 @@
+\begin{figure*}[t]
+  \centering
+  % Left-side labels
+  \begin{minipage}[t]{0.045\textwidth}
+    \footnotesize\raggedleft
+    \vspace{-3cm} % align with top of images
+    SIMSE\\[0.4cm]
+    L1\\[0.385cm]
+    JTFS\\[0.365cm]
+    DTW
+  \end{minipage}%
+  \hspace{0.01\textwidth}%
+  % Right-side: reordered minipage images
+  \begin{minipage}[t]{0.94\textwidth}
+    \centering
+    \begin{minipage}[t]{0.31\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_6.png}
+      \vspace{0.3em}
+      \footnotesize (a)~Delayed Pitch-bend
+    \end{minipage}
+    \hspace{0.015\textwidth}
+    \begin{minipage}[t]{0.31\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_4.png}
+      \vspace{0.3em}
+      \footnotesize (b)~No-delay Pitch-bend
+    \end{minipage}
+    \hspace{0.015\textwidth}
+    \begin{minipage}[t]{0.31\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_5.png}
+      \vspace{0.3em}
+      \footnotesize (c)~Pulsating Pitch-bend
+    \end{minipage}
+  \end{minipage}
+  \caption{Bootstrapped distributions and ranks for non-delayed, randomly delayed, and pulsating pitch-bend programs.}
+  \label{fig:npsk_pitch_bends}
+\end{figure*}
