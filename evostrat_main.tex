@@ -1,16 +1,34 @@
-\documentclass{article} % for thesis
+% This is samplepaper.tex, a sample chapter demonstrating the
+% LLNCS macro package for Springer Computer Science proceedings;
+% Version 2.21 of 2022/01/12
+%
+\documentclass[runningheads]{llncs}
+%
+\usepackage[T1]{fontenc}
+% T1 fonts will be used to generate the final print and online PDFs,
+% so please use T1 fonts in your manuscript whenever possible.
+% Other font encondings may result in incorrect characters.
+%
+
+% Used for displaying a sample figure. If possible, figure files should
+% be included in EPS format.
+%
+% If you use the hyperref package, please uncomment the following two lines
+% to display URLs in blue roman font according to Springer's eBook style:
+%\usepackage{color}
+%\renewcommand\UrlFont{\color{blue}\rmfamily}
+%\urlstyle{rm}
+%
 
 % \usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}
 % \documentclass[twocolumn,9pt]{article}
-\usepackage{spconf}
 \usepackage[utf8]{inputenc}
-\usepackage{natbib}
+% \usepackage{natbib}
 \usepackage{graphicx}
 \usepackage{stfloats} % for positioning of figure* on the same page
 \usepackage{caption}
 \usepackage{tikz}
 \usepackage[inline]{enumitem}
-\usepackage{amsmath}
 \usepackage[breaklinks=true,colorlinks=true, allcolors=blue]{hyperref}
 \usepackage{breakcites}
 \usepackage{microtype}
@@ -56,18 +74,10 @@
 \newcommand{\FMModvtwo}{\textbf{SineSine-AM}\xspace}
 \newcommand{\PitchBendUp}{\textbf{PitchBend-Up}\xspace}
 
-\title{Selecting Loss Functions for Out-of-Domain Sound-Matching}
 \begin{document}
 
-\name{Amir Salimi, Abram Hindle, Osmar R. Za{\"i}ane}
-\address{University of Alberta}
-
-\maketitle
-
-%     Despite their critical role in sound-matching, the performance of different sound-similarity measures (or loss functions) under different circumstances has rarely been a topic of research. Should we be looking for a global sound-similarity measure, or is the choice of loss function a creative decision, much like the selection of a synthesizer?
-
 \begin{abstract}
- Out-of-domain sound-matching is the task of automatically programming a synthesizer towards a sound that it cannot accurately replicate. Measuring performance in out-of-domain sound-matching is a difficult task due to reasons such as the subjective experience of sound, open-set recognition, characteristics of interest, etc. In addition, despite their critical role in sound-matching, the performance of different sound-similarity measures (or loss functions) under different circumstances has rarely been a topic of research. Should we be looking for a global sound-similarity measure, or is the choice of loss function a creative decision, much like the selection of a synthesizer?
+ Out-of-domain sound-matching is the task of automatically programming a synthesizer towards a sound that it cannot accurately replicate. Measuring performance in out-of-domain sound-matching is a difficult task to the subjective experience of sound, open-set recognition, characteristics of interest, etc. In addition, despite their critical role in sound-matching, the performance of different sound-similarity measures (or loss functions) under different circumstances has rarely been a topic of research. Should we be looking for a global sound-similarity measure, or is the choice of loss function a creative decision, much like the selection of a synthesizer?
  Here we present a series of differentiable out-of-domain sound-matching scenarios using four loss functions and various synthesizers. The experiments here are designed such that differences in parameters (whether all parameters or a subset) are well suited for measuring performance in sound-matching. The out-of-domain experiments here showcase the characteristics of the different loss functions, and confirm that their success is highly dependent on the method of synthesis and the target sound. 
 \end{abstract}
 
@@ -78,7 +88,7 @@ The are major areas of weakness in current literature that require further resea
 
 Defining success in out-of-domain sound-matching is difficult, as it calls for loss functions that \textit{only} measure differences in the characteristics of interest, which in turn can render the de facto, non-specific state-of-the-art (SOTA) methods of audio comparison such as multi-scale spectrogram loss (MSS) ~\cite{engel2020ddsp} ineffective. In a previous work, we presented a comparison of four different loss functions and their efficacy in sound-matching pipelines utilizing four different methods of synthesis~\cite{salimi2025soundmatching}, and saw that different loss functions are appropriate for different methods of synthesis~\cite{salimi2025soundmatching}; like the majority of previous works in sound-matching, the experiments were in-domain. Here, we expand previous work with a series of out-of-domain experiments where the synthesizer used to generate the target sounds are different from the one used for sound-matching. 
 
-Parameter loss (or P-LOSS) has been frequently used in previous works for measuring success in sound-matching. Although P-Loss does not always match up with hearing tests, it is nonetheless useful. Here, we define the original target synthesizers such that their functionalities partially overlap with the output synthesizer, in this way, the experiments are out-of-domain but partial P-LOSS is still available as a measure of success. 
+Parameter loss (or P-LOSS) has been frequently used in previous works for measuring success in sound-matching. Although P-Loss does not always match up with hearing tests, it is nontheless useful. Here, we define the original target synthesizers such that their functionalities partially overlap with the output synthesizer, in this way, the experiments are out-of-domain but partial P-LOSS is still available as a measure of success. 
 
 
 
@@ -107,16 +117,11 @@ Parameter loss (or P-LOSS) has been frequently used in previous works for measur
     \caption{ Iterative approach to sound design, as presented in~\cite{salimi2025soundmatching}}
     \label{fig:sound_design_loop_iterative}
 \end{figure}
-
+\section{Background}
+All sound-matching works require a synthesizer, a loss function, and a method for determining updating the synthesizer parameters. Iterative sound-matching uses these components in a feedback loop which imitates the manual approach. To paraphrase the formal definition given in previous works~\cite{salimi2025soundmatching,vahidi2023mesostructures,han2023perceptual}, a synthesizer $g$ with arbitrary (in this case, random) initialized parameters $\hat{\theta}$, creates sound $x$. The target sound $t$ is used as the goal. In-domain sound-matching implies that there exists a parameter set $\theta^*$ such that $g(\theta^*)$ is perceptually equal to $y$, where as out-of-domain sound-matching requires that there is no such set of parameters. In any case, the parameters $\hat{\theta}$ are adjusted to minimize error (or loss) $L(\hat{\theta},t)$, where $L$ is proportional to the difference between the representations of $x$ and $t$. $\phi$ is the audio feature extractor, or representation function, algorithms derived from Fourier transformations such as short-time Fourier transforms (STFT) or MSS are the most common form of $\phi$.
 
 % \subsection{Loss Functions}
 % In-domain experiments have shown that in a differentiable, iterative sound-matching setting, different loss functions appear to be appropriate for different methods of synthesis~\cite{salimi2025soundmatching}. This work is the further analysis of the interplay between the same loss functions and synthesizers in out-of-domain settings. 
-
-
-\section{Partial P-Loss}
-\label{sec:partial_ploss}
-
-
 
 \section{Methodology}
 \label{sec:experiment_setup}
@@ -263,8 +268,10 @@ process = sineOsc(30 + increasing_pitch(increase_speed) + sawOsc(pulse_rate) * 5
 % Different forms of gradient analysis has been conducted in previous works~\cite{masuda2023improving,turian2020sorry,vahidi2023mesostructures}.
 
 
-\clearpage
-\bibliographystyle{alpha}
+
+\bibliographystyle{splncs04}
 \bibliography{references}
 
 \end{document}
+
+
