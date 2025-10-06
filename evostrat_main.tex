@@ -238,8 +238,7 @@ This scenario is identical to the first, except the delay is removed. As seen in
 \subsubsection{Pulsating Pitch-Bending}
 Vahidi et al. contended that \JTFS is the appropriate loss function for the capture of ``mesostructures'' (\todo{what does it mean?}). Previous work has shown that this is not always the case using in-domain scenarios~\cite{salimi2025soundmatching}. As shown in Listing~\ref{lst:pitchbendup_pulse}, this scenario adds a pulse to the pitch-bending synthesizer, such that the frequency is shifted upwards overall, but also pulsing up and down within a narrow range. This characteristic is fully within the definition of ``mesostructure'', yet \JTFS is tied in second with \SIMSESpec, behind \DTWEnv in first place. 
 
-% Another noticeably conclusion here is that all loss function perform much worse on the scale proximity scale
-
+% Another noticeably conclusion here is that all loss function perform much worse on the proximity scale
 
 % Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset. Figure~\ref{fig:npsk_pitch_bends} the right side shows that \JTFS is the best performing loss function, which is consistent with the previous findings by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. 
 
