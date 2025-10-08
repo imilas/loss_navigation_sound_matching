@@ -18,6 +18,15 @@
 %%   Grave accent  \`     Left brace    \{     Vertical bar  \|
 %%   Right brace   \}     Tilde         \~}
 %%
+
+
+% DELETE THIS FOR FINAL SUBMISSION====== delete below
+
+\renewcommand\normalsize{%
+   \@setfontsize\normalsize{12pt}{14pt}%
+}
+
+% ====================================== delete above
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesClass{llncs}[2024/01/29 v2.24
 ^^J LaTeX document class for Lecture Notes in Computer Science]
