@@ -1,4 +1,7 @@
-% this paper verifies the utility of loss functions previously not tested in OOD settings. We define sound-matching tasks with targets that cannot be matched by the synthesizer. This target sound is from a target synthesizer which has at least 1 parameter in common with the output synthesizer. For each sound-matching task, we use a bespoke partial parameter loss (PPL) that measures the difference between the synthesizer parameters of interest. 
+% this paper verifies the utility of loss functions previously not tested in OOD settings. We define sound-matching tasks with targets that cannot be matched by the synthesizer. This target sound is from a target synthesizer which has at least 1 critical parameter in common with the output synthesizer. The performance measure of interest here is how close can we approximate the difference in the set of critical parameters between the target and output synth. We call this proximity the partial parameter loss (PPL), and define it such that it can be taken as a reasonable measure of performance in each sound-matching test. 
+
+
+For each sound-matching task, we use a bespoke  that measures the difference between the synthesizer parameters of interest. 
 
 % \documentclass[runningheads,20pt]{llncs}
 
