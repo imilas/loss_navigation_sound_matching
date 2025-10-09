@@ -1,17 +1,12 @@
-% This is samplepaper.tex, a sample chapter demonstrating the
-% LLNCS macro package for Springer Computer Science proceedings;
-% Version 2.21 of 2022/01/12
-%
-
+% this paper verifies the utility of loss functions previously not tested in OOD settings. We define sound-matching tasks with targets that cannot be matched by the synthesizer. This target sound is from a target synthesizer which has at least 1 parameter in common with the output synthesizer. For each sound-matching task, we use a bespoke partial parameter loss (PPL) that measures the difference between the synthesizer parameters of interest. 
 
 % \documentclass[runningheads,20pt]{llncs}
 
 
 \documentclass[14pt]{extarticle} % also accepts 17pt, 20pt
-\usepackage[T1]{fontenc}
 \usepackage[top=0.5in,bottom=0.5in,left=0.5in,right=0.5in]{geometry}
 
-
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{stfloats} % for positioning of figure* on the same page
@@ -128,11 +123,152 @@ Even advanced feature-space losses like JTFS~\cite{vahidi2023mesostructures} hav
 Few studies have attempted to isolate which aspects of the signal should be compared when full waveform alignment is unattainable.
 
 \subsection{Gaps and Motivation}
-We adopt a differentiable iterative framework similar to~\cite{salimi2025soundmatching} but extend it to OOD scenarios where the target and imitator synthesizers differ in architecture or parameter range.  
+We adopt a differentiable iterative framework similar to~\cite{salimi2025evaluating} but extend it to OOD scenarios where the target and imitator synthesizers differ in architecture or parameter range.  
 We evaluate the ability of four differentiable loss functions—L1\_Spec, SIMSE\_Spec, DTW\_Envelope, and JTFS—to generalize under controlled cross-domain conditions.  
 By introducing the partial parameter loss (PPL) as an evaluation metric, we aim to quantify how well each loss function preserves the critical transferable parameters of the target while tolerating unavoidable mismatches in other attributes.
 
 This focus on controlled OOD experimentation and selective evaluation distinguishes the present work from prior DDSP studies and positions it as a step toward more generalizable, perceptually grounded sound-matching systems.
+
+
+\section{Method Overview}
+\label{sec:method_overview}
+
+Our experimental design extends the differentiable iterative sound-matching framework introduced in~\cite{salimi2025evaluating} to controlled out-of-domain (OOD) scenarios.  
+Each experiment pairs a target synthesizer $g_t$ and an imitator synthesizer $g$, which may differ in structure or parameterization, and optimizes $g$ for 200 gradient-based iterations under one of four differentiable loss functions: L1\_Spec, SIMSE\_Spec, JTFS, or DTW\_Envelope.  
+Whereas in-domain matching seeks full parameter recovery, OOD matching emphasizes partial imitation of perceptually critical attributes that can meaningfully transfer across architectures.  
+
+To quantify this partial success, we use the \textit{partial parameter loss} (PPL) as our performance metric.  
+PPL measures distance only over the subset of parameters deemed critical for each scenario—for instance, filter cutoffs in band-pass matching or modulation rates in amplitude-modulated synthesis—while ignoring parameters without interpretable correspondence, such as oscillator pitch or waveform shape.  
+For each combination of $(g_t, g, L)$, 300 trials are conducted to produce a distribution of PPL values.  
+The distributions are bootstrapped to 1000 samples and compared using the non-parametric Scott–Knott (\gls{NPSK}) test to obtain ranked performance across loss functions.  
+
+This design enables a systematic investigation of how different differentiable similarity measures generalize beyond their native synthesis domain, and whether their relative strengths—observed previously under in-domain conditions—remain consistent when perfect reproduction of the target is impossible.
+
+ \section{Methodology}
+\label{sec:experiment_setup}
+
+\subsection{Experimental Framework}
+The iterative optimization loop shown in Fig.~\ref{fig:sound_design_loop_iterative} forms the foundation of all experiments.  
+In each trial, a target synthesizer $g_t$ is selected, and a target sound $x = g_t(\theta_t)$ is generated using randomly sampled parameters $\theta_t$.  
+An imitator synthesizer $g$ and a loss function $L$ are then chosen, and $g$ is optimized for 200 gradient-based iterations.  
+Unless otherwise specified, $g \neq g_t$, corresponding to an out-of-domain (OOD) configuration.
+
+Each \textbf{trial} consists of a single 200-iteration optimization run, resulting in one final \textit{partial parameter loss} (PPL) value.  
+An \textbf{experiment} comprises 300 independent trials with the same $(L, g, g_t)$ configuration, yielding a distribution of 300 PPL values.  
+A \textbf{scenario} consists of four such experiments—one per loss function—using the same synthesizer pair $(g_t, g)$.  
+Comparing the four distributions reveals which loss function best supports imitation for that particular scenario.
+
+The 300 PPL values from each experiment are upsampled by bootstrapping to 1000 samples of the mean, each drawn with replacement from the full distribution~\cite{tibshirani1993introduction,chernick2011bootstrap}.  
+The resulting bootstrapped distributions are compared using the non-parametric Scott–Knott (\gls{NPSK}) test~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}, which partitions loss functions into statistically distinct ranks.  
+Ranks range from~1 (best-performing) to~4 (worst-performing), with the possibility of ties when distributions are not significantly different.
+
+\subsection{Partial Parameter Loss (PPL)}
+In out-of-domain sound-matching, many parameters of the target and imitator synthesizers do not correspond directly—for example, when the target employs a saw oscillator but the imitator uses noise, or when modulation structures differ.  
+To evaluate only the aspects of the signal that can meaningfully transfer across domains, we compute a \emph{partial parameter loss} (PPL).  
+
+PPL measures the L1 distance only across the subset of parameters considered perceptually critical for the scenario:
+\begin{equation}
+\mathrm{PPL} = \| \theta^{(\mathrm{crit})}_t - \hat{\theta}^{(\mathrm{crit})} \|_1,
+\end{equation}
+where $\theta^{(\mathrm{crit})}$ denotes the target’s critical parameters (e.g., filter cutoffs, modulation rates) and $\hat{\theta}^{(\mathrm{crit})}$ the corresponding recovered parameters of the imitator.  
+Parameters with no perceptual or structural correspondence (e.g., oscillator frequency, waveform type) are ignored.  
+This enables a fair and interpretable comparison across mismatched synthesizers.
+
+\subsection{Scenario 1: Band-Pass Matching}
+The first scenario investigates band-pass filtering in noise and saw-wave synthesizers.  
+The target synthesizer $g_t$ is \BPSaw (Listing~\ref{lst:program0_saw}), and the imitator $g$ is \BPNoise (Listing~\ref{lst:program0}).  
+The task is defined as reproducing the high-pass and low-pass cutoff frequencies of the target’s band-pass filter, ignoring differences in excitation signal (noise vs. saw).
+
+Since filter cutoffs are directly reflected in the spectral envelope, spectrogram-based loss functions are expected to perform best.  
+Indeed, the results in Fig.~\ref{fig:npsk_BP} show that \SIMSESpec\ consistently achieves the lowest PPL, confirming its robustness to amplitude scaling and its suitability for filter-based imitation tasks.
+
+\begin{lstlisting}[caption={\BPNoise}, label={lst:program0}, language=Faust,
+float, floatplacement=!H, xleftmargin=1em, xrightmargin=0.5em, firstnumber=0, aboveskip=0em, belowskip=-1em]
+import("stdfaust.lib");
+lp_cut = hslider("lp_cut",900,100,5000,5);
+hp_cut = hslider("hp_cut",100,1,400,5);
+process = no.noise:fi.lowpass(3,lp_cut):fi.highpass(10,hp_cut);
+\end{lstlisting}
+
+\begin{lstlisting}[caption={\BPSaw}, label={lst:program0_saw}, language=Faust,
+float, floatplacement=!H, xleftmargin=1em, xrightmargin=0.5em, firstnumber=0, aboveskip=0em, belowskip=-1em]
+import("stdfaust.lib");
+lp_cut = hslider("lp_cut", 2801, 100, 5000, 1);
+hp_cut = hslider("hp_cut", 142, 1, 400, 1);
+sawOsc(f) = +(f/ma.SR) ~ ma.frac;
+process = sawOsc(30):fi.lowpass(5, lp_cut):fi.highpass(5, hp_cut);
+\end{lstlisting}
+
+\begin{figure}[htbp]
+  \centering
+  \scriptsize
+  \begin{minipage}{\columnwidth}
+    \begin{minipage}{0.10\columnwidth}
+      \raggedleft
+      \vspace{0.5cm}
+      SIMSE\\[0.6cm]
+      L1\\[0.65cm]
+      JTFS\\[0.65cm]
+      DTW
+    \end{minipage}%
+    \begin{minipage}{0.88\columnwidth}
+      \centering
+      \includegraphics[width=\linewidth]{images/npsk_ood_P_Loss_3.png}
+    \end{minipage}
+  \end{minipage}
+  \caption{Bootstrapped distributions and NPSK ranks for band-pass sound matching.}
+  \label{fig:npsk_BP}
+\end{figure}
+
+\subsection{Scenario 2: AM Synthesizer Matching}
+Amplitude-modulated synthesizers are ideal for evaluating temporal envelope sensitivity, as carrier frequencies and harmonic structures differ significantly across domains.  
+We test three variants using the synthesizers \FMMod\ (Listing~\ref{lst:program3}) and \FMModvtwo\ (Listing~\ref{lst:program3_v2}).  
+\FMMod\ modulates a saw oscillator’s amplitude with a sinusoidal LFO, while \FMModvtwo\ uses sine oscillators for both carrier and modulator.  
+In all cases, the \texttt{amp} parameter (LFO frequency) defines the rate of amplitude modulation and is treated as the critical component for PPL evaluation; the \texttt{car} parameter (carrier frequency) is ignored, as it cannot align across domains.
+
+\begin{lstlisting}[caption={\FMMod}, label={lst:program3},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+import("stdfaust.lib");
+carrier = hslider("car",car_a,car_b,car_c,1);
+amp = hslider("amp",amp_a,amp_b,amp_c,1);
+sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(2*ma.PI) : sin;
+sawOsc(f) = +(f/ma.SR) ~ ma.frac;
+process = sineOsc(amp)*sawOsc(car);
+\end{lstlisting}
+
+\begin{lstlisting}[caption={\FMModvtwo}, label={lst:program3_v2},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+import("stdfaust.lib");
+carrier = hslider("car",car_a,car_b,car_c,1);
+amp = hslider("amp",amp_a,amp_b,amp_c,1);
+sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(2*ma.PI) : sin;
+process = sineOsc(amp)*sineOsc(car);
+\end{lstlisting}
+
+Three OOD conditions are tested:
+\begin{enumerate}
+  \item \textbf{Non-overlapping carrier frequencies}: target and imitator carriers occupy disjoint frequency ranges (30–250~Hz vs.~1000–5000~Hz).  
+  \item \textbf{Sine target, saw imitator}: \FMModvtwo\ as target and \FMMod\ as imitator.  
+  \item \textbf{Saw target, sine imitator}: the reverse of condition~2.  
+\end{enumerate}
+
+Across all conditions, the DTW\_Envelope loss function performs best (see Fig.~\ref{fig:npsk_am_synths}), reflecting its ability to capture envelope-based temporal similarity despite mismatched spectral structures.
+
+\input{extra_figures/am_scenarios}
+
+\subsection{Scenario 3: Pitch-Bending}
+The final set of experiments examines pitch-bending synthesizers, adapted from chirplet-style models used in~\cite{vahidi2023mesostructures}.  
+Here, the target and imitator differ by a temporal offset, curvature, or modulation pattern in the pitch trajectory, creating various degrees of OOD mismatch.  
+The search parameters include the starting pitch (30–500~Hz) and the exponential rate of pitch increase (1–20 samples per step).  
+Three variations are evaluated:
+\begin{enumerate}
+  \item \textbf{Delayed pitch-bending}: imitator must match a target with a random delay before the bend onset.  
+  \item \textbf{No-delay pitch-bending}: same synthesizer pair but without delay (in-domain control).  
+  \item \textbf{Pulsating pitch-bending}: adds a periodic modulation on top of the exponential bend to test mesostructural sensitivity.
+\end{enumerate}
+
+As shown in Fig.~\ref{fig:npsk_pitch_bends}, \JTFS\ performs well when timing alignment is preserved (scenario~2), but its advantage diminishes when local temporal offsets or composite modulations are introduced.  
+DTW\_Envelope outperforms others under delayed and pulsating conditions, confirming its strength in capturing envelope-level temporal similarity.
+
+\input{extra_figures/pitch_bend_scenarios}
 
 
 \bibliographystyle{alpha}
