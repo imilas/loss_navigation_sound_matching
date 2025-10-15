@@ -1,9 +1,8 @@
-% Automation of OOD tests are particularly problematic due to the subjective nature of out experience of sound. This further complicates the automation of OOD sound-matching tests. 
 
 % This paper compares the performance of loss functions previously not tested in OOD settings, and verifies their utility. We define sound-matching tasks with targets that cannot be matched by the synthesizer. Each target sound is from a target synthesizer which has at least 1 critical parameter in common with the output synthesizer. The performance measure of interest here is how close can we approximate the difference in the set of critical parameters between the target and output synth. We call this proximity the partial parameter loss (PPL), and define it such that it can be taken as a reasonable measure of performance in each sound-matching test. 
+% we conduct a series of OOD tests to measure both whether there is a variation in performance of loss functions depending on the synthesizer, and verify the strength of said loss functions (spectrogram losses excel at filtering, DTW_env excells at amplitude envelope modulations, and JTFS is useful for delayed chirplets.
 
 
-% 
 \documentclass[runningheads]{llncs}
 
 
@@ -65,66 +64,63 @@
 \begin{document}
 
 
-\title{Out-of-Domain Evaluation of Sound Similarity Metrics in Differentiable, Iterative Sound-Matching}
+\title{Out-of-Domain Evaluation of Sound Similarity Metrics in Iterative, Differentiable Sound-Matching}
 %
-%\titlerunning{Abbreviated paper title}
-% If the paper title is too long for the running head, you can set
-% an abbreviated paper title here
+\titlerunning{Out-of-Domain Evaluation of Sound Similarity Metrics in Sound-Matching}
+
+\author{Amir Salimi\inst{1}\orcidID{0000-0001-5916-1050
+} \and
+Abram Hindle\inst{1}\orcidID{0000-0002-4373-4958} \and
+Osmar R. Zaïane\inst{1,2}\orcidID{0000-0002-0060-5988}}
 %
-% \author{First Author\inst{1}\orcidID{0000-1111-2222-3333} \and
-% Second Author\inst{2,3}\orcidID{1111-2222-3333-4444} \and
-% Third Author\inst{3}\orcidID{2222--3333-4444-5555}}
-% %
-% \authorrunning{F. Author et al.}
-% % First names are abbreviated in the running head.
-% % If there are more than two authors, 'et al.' is used.
-% %
-% \institute{Princeton University, Princeton NJ 08544, USA \and
-% Springer Heidelberg, Tiergartenstr. 17, 69121 Heidelberg, Germany
-% \email{lncs@springer.com}\\
-% \url{http://www.springer.com/gp/computer-science/lncs} \and
-% ABC Institute, Rupert-Karls-University Heidelberg, Heidelberg, Germany\\
-% \email{\{abc,lncs\}@uni-heidelberg.de}}
+\authorrunning{A. Salimi et al.}
 %
+\institute{
+Department of Computing Science, University of Alberta, Edmonton, Canada\\
+\email{\{asalimi, abram.hindle, zaiane\}@ualberta.ca}
+\and
+Alberta Machine Intelligence Institute (Amii),\\
+10065 Jasper Ave \#1101, Edmonton, AB T5J 1S5, Canada
+}
+
 \maketitle              % typeset the header of the contribution
 %
 
 \begin{abstract}
- Out-of-domain sound-matching is the task of automatically programming a synthesizer towards a sound that it cannot entirely replicate. Due to issues such as the subjective experience of sound and open-set recognition, measuring success in out-of-domain sound-matching is an under-explored topic. This is critical, as in-domain experiments do not accurately represent the challenges faced by sound-designers, and in-domain observations may not translate to out-of-domain scenarios. 
- 
- Here we present a series of out-of-domain experiments, where we compare the performance of four differentiable loss functions in various scenarios. 
-
- 
- Here we present a series of differentiable out-of-domain sound-matching scenarios using four loss functions and various synthesizers. The experiments here are designed such that differences in parameters (whether all parameters or a subset) are well suited for measuring performance in sound-matching. The out-of-domain experiments here showcase the characteristics of the different loss functions, and confirm that their success is highly dependent on the method of synthesis and the target sound. 
+Out-of-domain (OOD) sound-matching is the task of automatically programming a synthesizer toward a target sound that it cannot fully reproduce. 
+Measuring success in this setting remains underexplored due to the subjective nature of sound perception and the problem of open set recognition in the auditory domain. 
+Yet OOD sound-matching more accurately reflects the challenges faced by sound designers, for whom exact parameter recovery is rarely possible. 
+Building on prior in-domain findings that the performance of loss functions depends on the synthesis method, this study extends the analysis to OOD conditions. 
+We design a series of controlled experiments where each target and imitator synthesizer pair shares at least one critical parameter, enabling objective evaluation through a \emph{partial parameter loss} (PPL) that measures proximity between the corresponding parameter subsets. 
+Across multiple scenarios, we compare four differentiable loss functions—L1\_Spec, SIMSE\_Spec, JTFS, and DTW\_Envelope—under filtering, amplitude modulation, and pitch-bending conditions. 
+Results show that spectrogram-based losses excel in filter imitation, DTW\_Envelope captures envelope-modulated dynamics most effectively, and JTFS is beneficial when temporal alignment is preserved. 
+These findings verify that loss-function performance remains highly dependent on synthesis context, even under out-of-domain constraints.
 \end{abstract}
 
 \section{Introduction}
-\label{sec:intro}
-Manual sound design with a synthesizer is inherently iterative: an artist compares the synthesized output to a mental or auditory target, adjusts parameters, and repeats until the desired result is achieved~\cite{salimi2025soundmatching}.  
-Differentiable iterative sound-matching automates this process by optimizing synthesizer parameters under the guidance of a loss function that measures similarity between a target and an output signal.  
-Recent work has demonstrated that loss–synthesizer interactions are highly dependent on the synthesis method, with no universally optimal loss function across domains~\cite{salimi2025soundmatching}.  
-That study established a systematic evaluation framework combining differentiable synthesizers, loss functions, and statistical ranking to reveal how different metrics succeed or fail depending on synthesis structure.
+\label{sec:intro} 
 
-However, nearly all prior studies—including ours—assume an \emph{in-domain} setting, where the target and imitator synthesizers share identical architectures and parameterizations.  
-This assumption simplifies evaluation but fails to represent real sound-design workflows.  
-In practice, designers frequently attempt to imitate sounds created with other synthesizers, physical instruments, or recorded sources.  
-Such settings define the \emph{out-of-domain} (OOD) sound-matching problem, where exact replication of the target signal is impossible and the goal shifts from \emph{parameter recovery} to \emph{perceptual imitation}.  
-Despite its importance to creative audio practice, OOD sound-matching has received little systematic analysis and remains poorly understood.
+Sound-matching is the task of automatically programming a parameterizable audio synthesizer such that its output approximates a target sound, where the distance between output and target sound is measured by a similarity measure, or loss function. In-domain sound-matching refers to scenarios where the target sound is the output of the synthesizer itself, and success is often measured by accurate replication of the target sound. In contrast, out-of-domain (OOD) sound-matching refers to scenarios where the target sound is not the output of the synthesizer, and cannot be accurately recreated. Although the stated goal of most sound-matching works is the facilitation of sound-design for artists, the overwhelming majority of past work is focused on the in-domain scenario, which is a poor representation of the sound-design process. In particular, there is a lack of systematic understanding of how different sound-similarity measures interact with different synthesis methods.
 
-In OOD conditions, only a subset of parameters can meaningfully correspond between the target and imitator.  
-For instance, when matching a band-pass filtered saw wave with a noise synthesizer, the absolute pitch or harmonic content of the signal cannot align, yet the filter cutoffs can.  
-To capture success in such scenarios, we introduce the \emph{partial parameter loss} (PPL), which measures the distance only over the critical subset of parameters expected to transfer perceptually between the target and imitator.  
-PPL provides an interpretable performance measure for OOD experiments, enabling quantitative comparison even when large portions of the parameter space are unmatched or undefined.
+ Recent work~\cite{salimi2025evaluating} demonstrated that in the in-domain case, the interaction between loss functions and synthesis methods is highly dependent on the synthesizer architecture: no single similarity metric performs optimally across all synthesizers. These results encourage further creative approaches to loss function implementation, rather than relying on ``state-of-the-art'' (SOTA) losses as one-size-fits-all solutions. As a step toward automated interpretive sound design, this study verifies whether the optimal choice of a sound-similarity measure depends on the synthesis method under out-of-domain (OOD) conditions, and provides further explanation on the weaknesses and strengths of lesser used loss functions utilizing Dynamic Time Warping (DTW) and Scale invariant mean square (SIMSE) algorithms.
 
-Using the same differentiable iterative framework as in~\cite{salimi2025soundmatching}, we evaluate four loss functions—L1\_Spec, SIMSE\_Spec, DTW\_Envelope, and JTFS—across several controlled OOD scenarios designed to probe specific perceptual dimensions: (1) \textbf{band-pass filtering}, where cutoff frequencies are the critical features; (2) \textbf{amplitude modulation}, where modulation rates must align but carrier frequencies may not; and (3) \textbf{pitch-bending}, where temporal frequency trajectories differ by onset or curvature.  
-For each scenario, we record 300 trials per loss function and analyze the resulting distributions of PPL values using bootstrapped ranking and the non-parametric Scott–Knott test.
+In OOD conditions, only a subset of parameters between the target and imitator can meaningfully correspond.
+For instance, when matching a band-pass-filtered saw wave using a noise synthesizer, absolute pitch and harmonic content cannot align, yet the filter cutoffs can. To capture success in such settings, we introduce the partial parameter loss (PPL), a measure that quantifies differences only over the subset of critical parameters expected to transfer perceptually between target and imitator.
+PPL thus provides an interpretable, quantitative measure of performance in OOD sound-matching, even when large portions of the parameter space are unmatched or undefined.
 
 
 \section{Background and Related Work}
 \label{sec:background}
+% Since the 1970s, artists such as Suzanne Ciani~\cite{ciani_life_in_waves} have used audio synthesizers to evoke natural sounds—like a bottle cap popping off—in ways that preserve the perceptual essence of the original while highlighting the unique character of electronic synthesis~\cite{creativecherep2024}.
+% This practice illustrates a broader artistic philosophy: synthesizers are not merely tools for replication, but instruments for reinterpretation.
+% Yet despite advances in digital synthesis and differentiable optimization, automating this interpretive approach to sound design remains impractical and rarely explored.
+% However, nearly all prior research assumes an in-domain setting, where the target and imitator synthesizers share identical architectures and parameterizations.
+% This assumption simplifies evaluation but fails to represent real-world sound-design workflows, in which designers often attempt to imitate sounds from other synthesizers, acoustic instruments, or environmental recordings.
+% These situations define the out-of-domain (OOD) sound-matching problem, where perfect replication of the target is impossible and the objective shifts from parameter recovery to perceptual imitation.
+% Despite its relevance to creative audio practice, OOD sound-matching has received little systematic analysis and remains poorly understood.
 
 Sound-matching is the process of automatically programming a synthesizer to reproduce or imitate a target sound.  
-Formally, it involves a parametric synthesizer $g(\theta)$, a target signal $x_0$, a representation function $\phi(\cdot)$, and a similarity measure $L(\theta, x_0) = d(\phi(g(\theta)), \phi(x_0))$, where $d$ denotes a distance metric.  
+Formally, it involves a parametric synthesizer $g(\theta)$, a target signal $x_0$, a representation function $\phi(\cdot)$, and a similarity measure $L(\theta, x_0) = d(\phi(g(\theta)), \phi(x_0))$, where $d$ denotes a distance metric~\cite{vahidi2023mesostructures,han2023perceptual,salimi2025evaluating}.  
 The objective is to find parameter settings $\theta^*$ that minimize $L$, yielding a synthesized output perceptually close to the target.  
 This framework underlies both traditional and differentiable sound-matching approaches.
 
@@ -169,7 +165,43 @@ The distributions are bootstrapped to 1000 samples and compared using the non-pa
 
 This design enables a systematic investigation of how different differentiable similarity measures generalize beyond their native synthesis domain, and whether their relative strengths—observed previously under in-domain conditions—remain consistent when perfect reproduction of the target is impossible.
 
- \section{Methodology}
+\begin{figure}[ht]
+    \centering
+\begin{tikzpicture}[node distance=2cm, auto]
+
+% Nodes
+\node (start) [text centered] {\( g(\hat{\theta}) = x_{\theta} \)};
+\node (L) [above of=start, right of=start, text centered] 
+    {\( L(\hat{\theta}, x_{0}) \propto \phi(x_{\theta}) - \phi(x_{0}) \)};
+\node (optimize) [below of=L, right of=L, text centered] {Optimize $\hat{\theta}$};
+\node (new_theta) [below of=optimize, right of=start, text centered] {New \( \hat{\theta} \)};
+
+% Highlight and arrow for the start node
+\draw[->, very thick, red] (start) ++(-2,1.5) -- (start)
+    node[midway, below, align=center, sloped, color=red] {Start}
+    node[midway, above, align=center, sloped, color=red] {Random $\hat{\theta}$};
+
+% Arrows
+\draw[->, bend left] (start) to (L);
+\draw[->, bend left] (L) to (optimize);
+\draw[->, bend left] (optimize) to (new_theta);
+\draw[->, bend left] (new_theta) to (start);
+
+\end{tikzpicture}
+
+\caption[Iterative approach to sound design.]{
+Iterative approach to sound design. Synthesizer \(g\) with arbitrary initialized parameters \(\hat{\theta}\)
+creates sound \(x\). The target sound \(t\) is used as the goal.
+Parameters \(\hat{\theta}\) are adjusted to minimize error (or loss)
+\(L(\hat{\theta},t)\), where \(L\) is proportional to the difference between
+the representations of \(x\) and \(t\). \(\phi\) is the audio feature extractor, or representation function.
+}
+\label{fig:sound_design_loop_iterative}
+\end{figure}
+
+
+
+\section{Methodology}
 \label{sec:experiment_setup}
 
 \subsection{Experimental Framework}
