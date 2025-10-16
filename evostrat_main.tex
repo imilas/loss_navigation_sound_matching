@@ -167,7 +167,7 @@ This design enables a systematic investigation of how different differentiable s
 \begin{tikzpicture}[node distance=2cm, auto]
 
 % Nodes
-\node (start) [text centered] {\( g(\hat{\theta}) = x_{\theta} \)};
+\node (start) [text centered] {\( g_i(\hat{\theta}) = x_{\theta} \)};
 \node (L) [above of=start, right of=start, text centered] 
     {\( L(\hat{\theta}, x_{0}) \propto \phi(x_{\theta}) - \phi(x_{0}) \)};
 \node (optimize) [below of=L, right of=L, text centered] {Optimize $\hat{\theta}$};
@@ -203,12 +203,12 @@ the representations of \(x\) and \(t\). \(\phi\) is the audio feature extractor,
 
 \subsection{Experimental Framework}
 The iterative optimization loop shown in Fig.~\ref{fig:sound_design_loop_iterative} forms the foundation of all experiments.  
-In each trial, a target synthesizer $g_t$ is selected, and a target sound $x = g_t(\theta_t)$ is generated using randomly sampled parameters $\theta_t$.  
+In each trial, a target synthesizer $g_t$ is selected, and a target sound $x_0 = g_t(\theta_t)$ is generated using randomly sampled parameters $\theta_t$.  
 An imitator synthesizer $g$ and a loss function $L$ are then chosen, and $g$ is optimized for 200 gradient-based iterations.  In the experiments, either $g_i \neq g_t$ (\todo{refer to experiment sections}) or if $g_i = g_t$, the range of parameter values is non-overlapping. In either case, the output sound cannot precisely match the target sound, corresponding to an out-of-domain (OOD) configuration.
 
 Each \textbf{trial} consists of a single 200-iteration optimization run, resulting in one final \textit{partial parameter loss} (PPL) value.  
-An \textbf{experiment} comprises 300 independent trials with the same $(L, g, g_t)$ configuration, yielding a distribution of 300 PPL values.  
-A \textbf{scenario} consists of four such experiments—one per loss function—using the same synthesizer pair $(g_t, g)$.  
+An \textbf{experiment} comprises 300 independent trials with the same $(L, g_i, g_t)$ configuration, yielding a distribution of 300 PPL values.  
+A \textbf{scenario} consists of four such experiments—one per loss function—using the same synthesizer pair $(g_t, g_i)$.  
 Comparing the four distributions reveals which loss function best supports imitation for that particular scenario.
 
 The 300 PPL values from each experiment are upsampled by bootstrapping to 1000 samples of the mean, each drawn with replacement from the full distribution~\cite{tibshirani1993introduction,chernick2011bootstrap}.  
@@ -216,7 +216,7 @@ The resulting bootstrapped distributions are compared using the non-parametric S
 Ranks range from~1 (best-performing) to~4 (worst-performing), with the possibility of ties when distributions are not significantly different.
 
 \subsection{Partial Parameter Loss (PPL)}
-In out-of-domain sound-matching, many parameters of the target and imitator synthesizers do not correspond directly—for example, when the target employs a saw oscillator but the imitator uses noise, or when modulation structures differ.  
+In out-of-domain sound-matching, many parameters of the target and imitator synthesizers do not correspond directly; for example, when the target employs a saw oscillator but the imitator uses noise, or when modulation structures differ.  
 To evaluate only the aspects of the signal that can meaningfully transfer across domains, we compute a \emph{partial parameter loss} (PPL).  
 
 PPL measures the L1 distance only across the subset of parameters considered perceptually critical for the scenario:
@@ -229,8 +229,10 @@ This enables a fair and interpretable comparison across mismatched synthesizers.
 
 \subsection{Scenario 1: Band-Pass Matching}
 The first scenario investigates band-pass filtering in noise and saw-wave synthesizers.  
-The target synthesizer $g_t$ is \BPSaw (Listing~\ref{lst:program0_saw}), and the imitator $g$ is \BPNoise (Listing~\ref{lst:program0}).  
-The task is defined as reproducing the high-pass and low-pass cutoff frequencies of the target’s band-pass filter, ignoring differences in excitation signal (noise vs. saw).
+The target synthesizer $g_t$ is \BPSaw (Listing~\ref{lst:program0_saw}), and the imitator $g_i$ is \BPNoise (Listing~\ref{lst:program0}).  
+The task is defined as reproducing the high-pass and low-pass cutoff frequencies of the target’s band-pass filter, ignoring differences in the type of oscillator signal (noise vs. saw). 
+
+Here, both parameters are critical (low-pass and high-pass cutoffs) and shared by the synthesizers. The PPL is defined as the squared sum of the differences between $\theta^*$ and the last found parameter $\hat{\theta}_{199}$.
 
 Since filter cutoffs are directly reflected in the spectral envelope, spectrogram-based loss functions are expected to perform best.  
 Indeed, the results in Fig.~\ref{fig:npsk_BP} show that \SIMSESpec\ consistently achieves the lowest PPL, confirming its robustness to amplitude scaling and its suitability for filter-based imitation tasks.
