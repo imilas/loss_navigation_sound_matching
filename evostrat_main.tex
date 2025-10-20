@@ -276,8 +276,8 @@ process = sawOsc(30):fi.lowpass(5, lp_cut):fi.highpass(5, hp_cut);
 \end{figure}
 
 \subsection{Scenario 2: AM Synthesizer Matching}
-Amplitude-modulated synthesizers are ideal for evaluating temporal envelope sensitivity, as carrier frequencies and harmonic structures differ significantly across domains.  
-We test three variants using the synthesizers \FMMod\ (Listing~\ref{lst:program3}) and \FMModvtwo\ (Listing~\ref{lst:program3_v2}).  
+
+We test three variants of amplitude modulation using the synthesizers \FMMod\ (Listing~\ref{lst:program3}) and \FMModvtwo\ (Listing~\ref{lst:program3_v2}).  
 \FMMod\ modulates a saw oscillator’s amplitude with a sinusoidal LFO, while \FMModvtwo\ uses sine oscillators for both carrier and modulator.  
 In all cases, the \texttt{amp} parameter (LFO frequency) defines the rate of amplitude modulation and is treated as the critical component for PPL evaluation; the \texttt{car} parameter (carrier frequency) is ignored, as it cannot align across domains.
 
