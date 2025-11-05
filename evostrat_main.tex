@@ -93,8 +93,8 @@ Yet OOD sound-matching more accurately reflects the challenges faced by sound de
 Building on prior in-domain findings that the performance of loss functions depends on the synthesis method, this study extends the analysis to OOD conditions. 
 We design a series of controlled experiments where each target and imitator synthesizer pair shares at least one critical parameter, enabling objective evaluation through a \emph{partial parameter loss} (PPL) that measures proximity between the corresponding parameter subsets. 
 Across multiple scenarios, we compare four differentiable loss functions—L1\_Spec, SIMSE\_Spec, JTFS, and DTW\_Envelope—under filtering, amplitude modulation, and pitch-bending conditions. 
-Results show that spectrogram-based losses excel in filter imitation, DTW\_Envelope captures envelope-modulated dynamics most effectively, and JTFS is beneficial when temporal alignment is preserved. 
-These findings verify that loss-function performance remains highly dependent on synthesis context, even under out-of-domain constraints.
+Results show that spectrogram-based losses excel in filter imitation, DTW\_Envelope captures envelope-modulated dynamics most effectively, and JTFS is beneficial when temporal alignment is important. 
+These findings verifies the utility of important sound-similarity metrics, and shows that sound-matching performance remains highly dependent on synthesis context, even under out-of-domain constraints.
 \end{abstract}
 
 \section{Introduction}

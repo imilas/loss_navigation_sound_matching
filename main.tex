@@ -115,6 +115,16 @@ Parameter loss (or P-LOSS) has been frequently used in previous works for measur
 
 \section{Partial P-Loss}
 \label{sec:partial_ploss}
+In out-of-domain sound-matching, many parameters of the target and imitator synthesizers do not correspond directly; for example, when the target employs a saw oscillator but the imitator uses noise, or when modulation structures differ.  
+To evaluate only the aspects of the signal that can meaningfully transfer across domains, we compute a \emph{partial parameter loss} (PPL).  
+
+PPL measures the L1 distance only across the subset of parameters considered perceptually critical for the scenario:
+\begin{equation}
+\mathrm{PPL} = \| \theta^{(\mathrm{crit})}_t - \hat{\theta}^{(\mathrm{crit})} \|_1,
+\end{equation}
+where $\theta^{(\mathrm{crit})}$ denotes the target’s critical parameters (e.g., filter cutoffs, modulation rates) and $\hat{\theta}^{(\mathrm{crit})}$ the corresponding recovered parameters of the imitator.  
+Parameters with no perceptual or structural correspondence (e.g., oscillator frequency, waveform type) are ignored.  
+This enables a fair and interpretable comparison across mismatched synthesizers.
 
 
 
@@ -122,7 +132,9 @@ Parameter loss (or P-LOSS) has been frequently used in previous works for measur
 \label{sec:experiment_setup}
 % loss functions, target vs imitator, training loop
 % For each combination of synthesizer program and loss function, 300 sound-matching experiments are conducted and the automatic evaluation evaluation values are recorded after 200 iterations of the sound-matching loop. From the 300 targets and outputs, we select 40 examples for manual ranking. 
-The iterative loop shown in Figure~\ref{fig:sound_design_loop_iterative} is the building block of our analysis. In each trial, we select a target synthesizer $g_t$, and generate the target sound $x$ with randomly set parameters $\theta_t$. We then select a synthesizer $g$\footnote{Often not equal to $g_t$ since these are out-of-domain experiments} and loss function $L$ and the loop for 200 iterations, after which we record the partial P-Loss as the measure of the trial's success. What we call an experiment is 300 trials with the same $L$, $g$, and $g_t$, giving us 300 measures of success. We design sound-matching scenarios by keeping $g$ and $g_t$ the same, and conducting experiments with each $L$. This gives four distributions of partial P-Loss values for each loss function, and comparing the four distributions highlights the most appropriate loss function for a specific scenario. Like our previous work~\cite{salimi2025soundmatching}, the distributions are upsampled to 1000 values using bootstrapping (1000 samples of the mean using 100\% of the values with replacement)~\cite{tibshirani1993introduction,chernick2011bootstrap}. For each scenario, the loss functions are ranked using the non-parametric Scott-Knott (\gls{NPSK}) test~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}, which ranks the loss functions from rank 1 (best, or highest distribution values) to maximum rank of 4, with the possibility of ties between distributions. 
+The iterative loop shown in Figure~\ref{fig:sound_design_loop_iterative} is the building block of our analysis. In each trial, we select a target synthesizer $g_t$, and generate the target sound $x$ with randomly set parameters $\theta_t$. We then select a synthesizer $g$\footnote{Often not equal to $g_t$ since these are out-of-domain experiments} and loss function $L$, and the iterative loop is applied for 200 iterations, after which the the partial P-Loss for $\theta_199$ is recorded as the measure of the trial's success. What we call an experiment is 300 trials with the same $L$, $g$, and $g_t$, giving us 300 measures of success. We design sound-matching scenarios by keeping $g$ and $g_t$ the same, and conducting experiments with each $L$. This gives four distributions of partial P-Loss values for each loss function. Comparing the four distributions highlights the most appropriate loss function for a specific scenario. 
+
+Like previous work~\cite{salimi2025soundmatching}, the distributions are upsampled to 1000 values using bootstrapping (1000 samples of the mean using 100\% of the values with replacement)~\cite{tibshirani1993introduction,chernick2011bootstrap}. For each scenario, the loss functions are ranked using the non-parametric Scott-Knott (\gls{NPSK}) test~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}, which ranks the loss functions from rank 1 (best, or highest distribution values) to maximum rank of 4, with the possibility of ties between distributions. 
 
 To summarize, a trial is 200 iterations of a loop with the final partial P-Loss used as the performance measure, an experiment is 300 trials, a scenario is 4 experiments with the same synthesizers and different loss functions. Testing scenarios with different characteristics illuminates the strength and weaknesses of the loss functions and shows whether the best performing loss function is variable in out-of-domain experiments.
 
