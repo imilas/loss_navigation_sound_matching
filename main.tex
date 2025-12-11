@@ -74,46 +74,71 @@
 \section{Introduction}
 Audio synthesizers are musical instruments which utilize digital signal processing (DSP) functions for the creation of sound.  One method of sound-design with a synthesizer is approximating the characteristics of a desired (or target) sound with a synthesizer. This often requires the continual and iterative process of listening to the output of the synthesizer and modifying the parameters accordingly until satisfied. \textit{Sound-matching} is the term used for the automation of this process, which critically relies on automatic listening, i.e., a function for measuring similarity between the target sound and the output of the synthesizer. 
 
-The are major areas of weakness in current literature that require further research~\cite{salimi2025soundmatching}. One such issue is the lack of experiments pertaining to \OutDomain, i.e., use of target sounds which the audio synthesizer cannot reproduce. The overwhelming majority of current sound-matching works showcase experiments where the target sound is the output of the synthesizer itself, the true parameters are known, and the goal is to replicate the exact same target sound. This is not a realistic simulation of the manual approach, where the target sound is all but guaranteed to be from another source (be it synthesized or manually recorded) and the goal is not the direct replication of the target sound, but the imitation of a subset of its characteristics.
+The are major areas of weakness in current literature that require further research~\cite{salimi2025evaluating}. One such issue is the lack of experiments pertaining to \OutDomain, i.e., use of target sounds which the audio synthesizer cannot reproduce. The overwhelming majority of current sound-matching works showcase experiments where the target sound is the output of the synthesizer itself, the true parameters are known, and the goal is to replicate the exact same target sound. This is not a realistic simulation of the manual approach, where the target sound is all but guaranteed to be from another source (be it synthesized or manually recorded) and the goal is not the direct replication of the target sound, but the imitation of a subset of its characteristics.
 
-Defining success in out-of-domain sound-matching is difficult, as it calls for loss functions that \textit{only} measure differences in the characteristics of interest, which in turn can render the de facto, non-specific state-of-the-art (SOTA) methods of audio comparison such as multi-scale spectrogram loss (MSS) ~\cite{engel2020ddsp} ineffective. In a previous work, we presented a comparison of four different loss functions and their efficacy in sound-matching pipelines utilizing four different methods of synthesis~\cite{salimi2025soundmatching}, and saw that different loss functions are appropriate for different methods of synthesis~\cite{salimi2025soundmatching}; like the majority of previous works in sound-matching, the experiments were in-domain. Here, we expand previous work with a series of out-of-domain experiments where the synthesizer used to generate the target sounds are different from the one used for sound-matching. 
+Defining success in out-of-domain sound-matching is difficult, as it calls for loss functions that \textit{only} measure differences in the characteristics of interest, which in turn can render the de facto, non-specific state-of-the-art (SOTA) methods of audio comparison such as multi-scale spectrogram loss (MSS) ~\cite{engel2020ddsp} ineffective. In a previous work, we presented a comparison of four different loss functions and their efficacy in sound-matching pipelines utilizing four different methods of synthesis~\cite{salimi2025evaluating}, and saw that different loss functions are appropriate for different methods of synthesis~\cite{salimi2025evaluating}; like the majority of previous works in sound-matching, the experiments were in-domain. Here, we expand previous work with a series of out-of-domain experiments where the synthesizer used to generate the target sounds are different from the one used for sound-matching. 
 
 Parameter loss (or P-LOSS) has been frequently used in previous works for measuring success in sound-matching. Although P-Loss does not always match up with hearing tests, it is nonetheless useful. Here, we define the original target synthesizers such that their functionalities partially overlap with the output synthesizer, in this way, the experiments are out-of-domain but partial P-LOSS is still available as a measure of success. 
 
-
+\section{Background}
+\subsection{Defining Sound-Matching}
+ Formal definitions of sound-matching given in previous work require some modifications in order to be useful in OOD scenarios~\cite{vahidi2023mesostructures,han2023perceptual,salimi2025evaluating}. Adapting the definitions from Salimi \textit{et al.} gives us the following key components:
+\begin{itemize}
+    \item $g(\theta)$: A parametric audio synthesizer $g$ with parameters $\theta$.
+    \item $g^{t}(\theta^t)$: The synthesizer which outputs the target sound $x^t$. This synthesizer is either different from $g$, or it has non-overlapping parameter ranges.
+    \item $x_\theta$: The synthesizer output, $x_\theta = g(\theta)$”.
+    \item $x_0$: The target sound to be replicated or imitated. 
+    \item $\phi(\cdot)$: A representation (feature extraction) function mapping signals into a comparison space.
+    \item $L$: A loss function that measures distance between $x_\theta$ and $x_0$, typically via $L(\theta,x_0) = d(\phi(x_\theta), \phi(x_0))$ for some metric $d$.
+\end{itemize}
 
 \begin{figure}[ht]
     \centering
 \begin{tikzpicture}[node distance=2cm, auto]
 
-    % Nodes
-    \node (start) [text centered] {\( g (\hat{\theta}) = x \)};
-    \node (L) [above of=start,right of=start, text centered] {\( L(\hat{\theta},t) {\ \propto \ } \phi(x) - \phi(t) \)};
-    \node (optimize) [below of=L,right of=L, text centered] {Optimize $\hat{\theta}$};
-    \node (new_theta) [below of=optimize,right of = start, text centered] {New \( \hat{\theta} \)};
+% Nodes
+\node (start) [text centered] {\( g(\hat{\theta}) = x_{\hat{\theta}} \)};
+\node (L) [above of=start, right of=start, text centered] 
+    {\( L(\hat{\theta}, x_{0}) \propto \phi(x_{\hat{\theta}}) - \phi(x^t) \)};
+\node (optimize) [below of=L, right of=L, text centered] {Optimize $\hat{\theta}$};
+\node (new_theta) [below of=optimize, right of=start, text centered] {New \( \hat{\theta} \)};
 
-    % Highlight and arrow for the start node
-    \draw[->, very thick, red] (start) ++(-2,1.5) -- (start)
-        node[midway, below, align=center, sloped, color=red] {Start}
-        node[midway, above, align=center, sloped, color=red] {Random $\hat{\theta}$};
-        
-    % Arrows with multi-line labels
-    \draw[->, bend left] (start) to node[midway, right, align=center] {} (L);
-    \draw[->, bend left] (L) to node[midway, right, align=center] {} (optimize);
-    \draw[->, bend left] (optimize) to node[midway, below, align=center] {} (new_theta);
-    \draw[->, bend left] (new_theta) to node[midway, left, align=center] {} (start);
+% Highlight and arrow for the start node
+\draw[->, very thick, red] (start) ++(-2,1.5) -- (start)
+    node[midway, below, align=center, sloped, color=red] {Start}
+    node[midway, above, align=center, sloped, color=red] {Random $\hat{\theta}$};
+
+% Arrows with multi-line labels
+\draw[->, bend left] (start) to node[midway, right, align=center] {} (L);
+\draw[->, bend left] (L) to node[midway, right, align=center] {} (optimize);
+\draw[->, bend left] (optimize) to node[midway, below, align=center] {} (new_theta);
+\draw[->, bend left] (new_theta) to node[midway, left, align=center] {} (start);
 
 \end{tikzpicture}
-    \caption{ Iterative approach to sound design, as presented in~\cite{salimi2025soundmatching}}
+    % \caption{ Iterative approach to sound design. Synthesizer $g$ with arbitrary initialized parameters $\hat{\theta}$, creates sound $x$. The target sound $t$ is used as the goal. Parameters $\hat{\theta}$ are adjusted to minimize error (or loss) $L(\hat{\theta},t)$, where $L$ is proportional to the difference between the representations of $x$ and $t$. $\phi$ is the audio feature extractor, or representation function.}
+    \caption{ Iterative approach to sound design. Adapted to OOD scenarios~\cite{salimi2025evaluating}.}
     \label{fig:sound_design_loop_iterative}
 \end{figure}
 
 
+\
 % \subsection{Loss Functions}
-% In-domain experiments have shown that in a differentiable, iterative sound-matching setting, different loss functions appear to be appropriate for different methods of synthesis~\cite{salimi2025soundmatching}. This work is the further analysis of the interplay between the same loss functions and synthesizers in out-of-domain settings. 
+% In-domain experiments have shown that in a differentiable, iterative sound-matching setting, different loss functions appear to be appropriate for different methods of synthesis~\cite{salimi2025evaluating}. This work is the further analysis of the interplay between the same loss functions and synthesizers in out-of-domain settings. 
 
 
-\section{Partial P-Loss}
+
+
+
+\section{Methodology}
+\label{sec:experiment_setup}
+
+The iterative loop shown in Figure~\ref{fig:sound_design_loop_iterative} is the building block of our analysis. In each trial, we select a target synthesizer $g_t$, and generate the target sound $x$ with randomly set parameters $\theta_t$. We then select a synthesizer $g$--often not equal to $g_t$ since these are out-of-domain experiments--and loss function $L$, and the iterative loop is applied for 200 iterations, after which the the partial P-Loss for $\theta_199$ is recorded as the measure of the trial's success. What we call an experiment is 300 trials with the same $L$, $g$, and $g_t$, giving us 300 measures of success. We design sound-matching scenarios by keeping $g$ and $g_t$ the same, and conducting experiments with each $L$. This gives four distributions of partial P-Loss values for each loss function. Comparing the four distributions highlights the most appropriate loss function for a specific scenario. 
+
+Like previous work~\cite{salimi2025evaluating}, the distributions are upsampled to 1000 values using bootstrapping (1000 samples of the mean using 100\% of the values with replacement)~\cite{tibshirani1993introduction,chernick2011bootstrap}. For each scenario, the loss functions are ranked using the non-parametric Scott-Knott (\gls{NPSK}) test~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}, which ranks the loss functions from rank 1 (best, or highest distribution values) to maximum rank of 4, with the possibility of ties between distributions. 
+
+To summarize, a trial is 200 iterations of a loop with the final partial P-Loss used as the performance measure, an experiment is 300 trials, a scenario is 4 experiments with the same synthesizers and different loss functions. 
+
+\subsection{Partial P-Loss}
 \label{sec:partial_ploss}
 In out-of-domain sound-matching, many parameters of the target and imitator synthesizers do not correspond directly; for example, when the target employs a saw oscillator but the imitator uses noise, or when modulation structures differ.  
 To evaluate only the aspects of the signal that can meaningfully transfer across domains, we compute a \emph{partial parameter loss} (PPL).  
@@ -127,20 +152,8 @@ Parameters with no perceptual or structural correspondence (e.g., oscillator fre
 This enables a fair and interpretable comparison across mismatched synthesizers.
 
 
-
-\section{Methodology}
-\label{sec:experiment_setup}
-% loss functions, target vs imitator, training loop
-% For each combination of synthesizer program and loss function, 300 sound-matching experiments are conducted and the automatic evaluation evaluation values are recorded after 200 iterations of the sound-matching loop. From the 300 targets and outputs, we select 40 examples for manual ranking. 
-The iterative loop shown in Figure~\ref{fig:sound_design_loop_iterative} is the building block of our analysis. In each trial, we select a target synthesizer $g_t$, and generate the target sound $x$ with randomly set parameters $\theta_t$. We then select a synthesizer $g$\footnote{Often not equal to $g_t$ since these are out-of-domain experiments} and loss function $L$, and the iterative loop is applied for 200 iterations, after which the the partial P-Loss for $\theta_199$ is recorded as the measure of the trial's success. What we call an experiment is 300 trials with the same $L$, $g$, and $g_t$, giving us 300 measures of success. We design sound-matching scenarios by keeping $g$ and $g_t$ the same, and conducting experiments with each $L$. This gives four distributions of partial P-Loss values for each loss function. Comparing the four distributions highlights the most appropriate loss function for a specific scenario. 
-
-Like previous work~\cite{salimi2025soundmatching}, the distributions are upsampled to 1000 values using bootstrapping (1000 samples of the mean using 100\% of the values with replacement)~\cite{tibshirani1993introduction,chernick2011bootstrap}. For each scenario, the loss functions are ranked using the non-parametric Scott-Knott (\gls{NPSK}) test~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}, which ranks the loss functions from rank 1 (best, or highest distribution values) to maximum rank of 4, with the possibility of ties between distributions. 
-
-To summarize, a trial is 200 iterations of a loop with the final partial P-Loss used as the performance measure, an experiment is 300 trials, a scenario is 4 experiments with the same synthesizers and different loss functions. Testing scenarios with different characteristics illuminates the strength and weaknesses of the loss functions and shows whether the best performing loss function is variable in out-of-domain experiments.
-
-
 \subsection{Band Pass Matching}
-In this scenario, the two synthesizers are the application of band-passing to noise (\BPNoise) and saw waves (\BPSaw). Examples of these programs are given in Listings~\ref{lst:program0} and ~\ref{lst:program0_saw} respectively. Previously, we've seen that with in-domain sound-matching of \BPNoise, the loss functions utilizing spectrogram differences were the best performers, and speculated that this was related to the clear visibility of filter-cutoffs in a spectrogram. 
+In this scenario, the two synthesizers are the application of band-passing to noise (\BPNoise) and saw waves (\BPSaw). Examples of these programs are given in Listings~\ref{lst:program0} and ~\ref{lst:program0_saw} respectively. Previous observations have shown that with in-domain sound-matching of \BPNoise, the loss functions utilizing spectrogram differences were the best performers, speculating that this due to the clear visibility of filter-cutoffs in a spectrogram. 
  
  Here we use \BPSaw as the target synthesizer, and \BPNoise as the imitator. We define success in sound-matching here as the proximity of the imitator's high and low-pass cutoffs to that of the target. This allows for P-Loss to become an objective measure of success. With this objective, we see that \SIMSESpec is once again the clear best performing loss function.
 
@@ -241,14 +254,13 @@ The program here is a sine wave with a steady starting pitch for a random amount
 This scenario is identical to the first, except the delay is removed. As seen in Figure~\ref{fig:npsk_pitch_bends} (b), while there are noticeable shifts in the rankings, \JTFS remains the best performer, which is consistent with the results by Vahidi et al.~\cite{vahidi2023mesostructures}.
 
 \subsubsection{Pulsating Pitch-Bending}
-Vahidi et al. contended that \JTFS is the appropriate loss function for the capture of ``mesostructures'' (\todo{what does it mean?}). Previous work has shown that this is not always the case using in-domain scenarios~\cite{salimi2025soundmatching}. As shown in Listing~\ref{lst:pitchbendup_pulse}, this scenario adds a pulse to the pitch-bending synthesizer, such that the frequency is shifted upwards overall, but also pulsing up and down within a narrow range. This characteristic is fully within the definition of ``mesostructure'', yet \JTFS is tied in second with \SIMSESpec, behind \DTWEnv in first place. 
+Vahidi et al. contended that \JTFS is the appropriate loss function for the capture of ``mesostructures'' (\todo{what does it mean?}). Previous work has shown that this is not always the case using in-domain scenarios~\cite{salimi2025evaluating}. As shown in Listing~\ref{lst:pitchbendup_pulse}, this scenario adds a pulse to the pitch-bending synthesizer, such that the frequency is shifted upwards overall, but also pulsing up and down within a narrow range. This characteristic is fully within the definition of ``mesostructure'', yet \JTFS is tied in second with \SIMSESpec, behind \DTWEnv in first place. 
 
-% Another noticeably conclusion here is that all loss function perform much worse on the scale proximity scale
+% Another conclusion here is that all loss function perform much worse on the proximity scale
 
+Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset. Figure~\ref{fig:npsk_pitch_bends} the right side shows that \JTFS is the best performing loss function, which is consistent with the previous findings by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. 
 
-% Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset. Figure~\ref{fig:npsk_pitch_bends} the right side shows that \JTFS is the best performing loss function, which is consistent with the previous findings by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. 
-
-% An interesting follow-up experiment conducted was the \textit{in-domain} comparison of pitch-bending synthesizers \textit{without} delay. This is identical to the delayed pitch-bending experiment but setting the delay variable $\delta=0$. The left side of Figure~\ref{fig:npsk_pitch_bends} shows that \DTWEnv is the better performer in the in-domain scenario.
+An interesting follow-up experiment conducted was the \textit{in-domain} comparison of pitch-bending synthesizers \textit{without} delay. This is identical to the delayed pitch-bending experiment but setting the delay variable $\delta=0$. The left side of Figure~\ref{fig:npsk_pitch_bends} shows that \DTWEnv is the better performer in the in-domain scenario.
 
 \begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp program. when an instance of the synthezier is created, $\delta$ is randomly assigned a value between 5000-30000 samples (for ``Delayed Pitch-bend) or set to 0 (No-delay Pitch-bend)}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
 import("stdfaust.lib");
@@ -273,8 +285,11 @@ process = sineOsc(30 + increasing_pitch(increase_speed) + sawOsc(pulse_rate) * 5
 % Different forms of gradient analysis has been conducted in previous works~\cite{masuda2023improving,turian2020sorry,vahidi2023mesostructures}.
 
 
+
 \clearpage
 \bibliographystyle{alpha}
+
 \bibliography{references}
+
 
 \end{document}

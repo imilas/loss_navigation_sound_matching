@@ -140,7 +140,7 @@ The transition from in-domain to OOD settings introduces a fundamental challenge
 
 The evaluation of OOD success further complicates the problem.  
 Metrics such as spectral L1 or mean-squared error are sensitive to global gain and timbral differences that may be irrelevant to perceived similarity~\cite{turian2020sorry,salimi2025evaluating}.  
-Even advanced feature-space losses like JTFS~\cite{anden2015joint} have shown inconsistent behavior when temporal or spectral structures are mismatched~\cite{salimi2025soundmatching}.  
+Even advanced feature-space losses like JTFS~\cite{anden2015joint} have shown inconsistent behavior when temporal or spectral structures are mismatched~\cite{salimi2025evaluating}.  
 Few studies have attempted to isolate which aspects of the signal should be compared when full waveform alignment is unattainable.
 
 \subsection{Gaps and Motivation}
@@ -309,7 +309,7 @@ Across all conditions, the DTW\_Envelope loss function performs best (see Fig.~\
 
 \input{extra_figures/am_scenarios}
 
-\subsection{Scenario 2: Pitch-Bending}
+\subsection{Scenario 3: Pitch-Bending}
 The final set of experiments examines pitch-bending synthesizers, adapted from chirplet-style models used in~\cite{vahidi2023mesostructures}.  
 Here, the target and imitator differ by a temporal offset, curvature, or modulation pattern in the pitch trajectory, creating various degrees of OOD mismatch.  
 The search parameters include the starting pitch (30–500~Hz) and the exponential rate of pitch increase (1–20 samples per step).  
