@@ -80,6 +80,55 @@ Defining success in out-of-domain sound-matching is difficult, as it calls for l
 
 Parameter loss (or P-LOSS) has been frequently used in previous works for measuring success in sound-matching. Although P-Loss does not always match up with hearing tests, it is nonetheless useful. Here, we define the original target synthesizers such that their functionalities partially overlap with the output synthesizer, in this way, the experiments are out-of-domain but partial P-LOSS is still available as a measure of success. 
 
+\section{Background}
+\subsection{Defining Sound-Matching}
+ Formal definitions of sound-matching given in previous work require some modifications in order to be useful in OOD scenarios~\cite{vahidi2023mesostructures,han2023perceptual,salimi2025evaluating}. Adapting the definitions from Salimi \textit{et al.} gives us the following key components:
+\begin{itemize}
+    \item $g(\theta)$: A parametric audio synthesizer $g$ with parameters $\theta$.
+    \item $g^{t}(\theta^t)$: The synthesizer which outputs the target sound $x^t$. This synthesizer is either different from $g$, or it has non-overlapping parameter ranges.
+    \item $x_\theta$: The synthesizer output, $x_\theta = g(\theta)$”.
+    \item $x_0$: The target sound to be replicated or imitated. 
+    \item $\phi(\cdot)$: A representation (feature extraction) function mapping signals into a comparison space.
+    \item $L$: A loss function that measures distance between $x_\theta$ and $x_0$, typically via $L(\theta,x_0) = d(\phi(x_\theta), \phi(x_0))$ for some metric $d$.
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+\begin{tikzpicture}[node distance=2cm, auto]
+
+% Nodes
+\node (start) [text centered] {\( g(\hat{\theta}) = x_{\hat{\theta}} \)};
+\node (L) [above of=start, right of=start, text centered] 
+    {\( L(\hat{\theta}, x_{0}) \propto \phi(x_{\hat{\theta}}) - \phi(x^t) \)};
+\node (optimize) [below of=L, right of=L, text centered] {Optimize $\hat{\theta}$};
+\node (new_theta) [below of=optimize, right of=start, text centered] {New \( \hat{\theta} \)};
+
+% Highlight and arrow for the start node
+\draw[->, very thick, red] (start) ++(-2,1.5) -- (start)
+    node[midway, below, align=center, sloped, color=red] {Start}
+    node[midway, above, align=center, sloped, color=red] {Random $\hat{\theta}$};
+
+% Arrows with multi-line labels
+\draw[->, bend left] (start) to node[midway, right, align=center] {} (L);
+\draw[->, bend left] (L) to node[midway, right, align=center] {} (optimize);
+\draw[->, bend left] (optimize) to node[midway, below, align=center] {} (new_theta);
+\draw[->, bend left] (new_theta) to node[midway, left, align=center] {} (start);
+
+\end{tikzpicture}
+    % \caption{ Iterative approach to sound design. Synthesizer $g$ with arbitrary initialized parameters $\hat{\theta}$, creates sound $x$. The target sound $t$ is used as the goal. Parameters $\hat{\theta}$ are adjusted to minimize error (or loss) $L(\hat{\theta},t)$, where $L$ is proportional to the difference between the representations of $x$ and $t$. $\phi$ is the audio feature extractor, or representation function.}
+    \caption{ Iterative approach to sound design. Adapted to OOD scenarios~\cite{salimi2025evaluating}.}
+    \label{fig:sound_design_loop_iterative}
+\end{figure}
+
+
+\
+% \subsection{Loss Functions}
+% In-domain experiments have shown that in a differentiable, iterative sound-matching setting, different loss functions appear to be appropriate for different methods of synthesis~\cite{salimi2025evaluating}. This work is the further analysis of the interplay between the same loss functions and synthesizers in out-of-domain settings. 
+
+
+
+
+
 \section{Methodology}
 \label{sec:experiment_setup}
 
