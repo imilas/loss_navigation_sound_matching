@@ -77,7 +77,7 @@
     \item $g^{t}(\theta^t)$: The target synthesizer $g^{t}$ outputs the target sound $x^t$. The corresponding sound (or \textit{target} sound) is $x^t$. For experiments to be OOD, $g^t$ and $g$ must be designed differently, or have non-overlapping parameter ranges such that $ g(\theta) \neq g^t(\theta^t)$ for any $\theta$.\
     
      % (if we denote $\forall x \in \mathcal{X}$ and $\forall x^t \in \mathcal{X}^t$ then $\mathcal{X}^t\cap\mathcal{X}=\emptyset$).
-    \item $x_\theta$: The synthesizer output, $x_\theta = g(\theta)$”.
+    \item $x_\theta$: The synthesizer output given a set of parameters $\theta$, $x_\theta = g(\theta)$”.
     \item $x^t$: The target sound to be replicated or imitated. 
     \item $\phi(\cdot)$: A representation (feature extraction) function mapping signals into a comparison space.
     \item $L$: A loss function that measures distance between $x_\theta$ and $x^t$, typically via $L(\theta,x^t) = d(\phi(x_\theta), \phi(x^t))$ for some metric $d$.
@@ -90,7 +90,7 @@
 % Nodes
 \node (start) [text centered] {\( g(\theta) = x_{\theta} \)};
 \node (L) [above of=start, right of=start, text centered] 
-    {\( L(\theta, x^t) \propto \phi(x_{\hat{\theta}}) - \phi(x^t) \)};
+    {\( L(\theta, x^t) \propto \phi(x_{\theta}) - \phi(x^t) \)};
 \node (optimize) [below of=L, right of=L, text centered] {Optimize $\theta$};
 \node (new_theta) [below of=optimize, right of=start, text centered] {New \( \theta \)};
 
@@ -113,11 +113,14 @@
 
 
 \section{methodology}
-The foundation of our experiments is iterative loop shown in Figure~\ref{fig:sound_design_loop_iterative}. This iterative approach is the OOD adaption of previous work by Salimi \textit{et al.}~\cite{salimi2025evaluating}. The goal of the experiments here is to measure the performance of loss functions in different 
+The foundation of our experiments is iterative loop shown in Figure~\ref{fig:sound_design_loop_iterative}. This iterative approach is the OOD adaption of previous work by Salimi \textit{et al.}~\cite{salimi2025evaluating}. The goal of the experiments here is to measure the performance of loss functions in different OOD scenarios. In each scenario, a large number of experiments with different loss functions, but the synthesizers are unchanged. 
 
-Each experiment having 3 phases:
+
+To define an experiment the values of loss function $L$, $g^t$, $g$, and max number of iterations $n$ are fixed. Each experiment has three phases
 \begin{enumerate}
-    \item Set a
+    \item $L$ and the scenario's synthesizers $g$ and $g^t$, create a target sound $x^t$ by with random parameters $\theta^t$ given to $g^t$. $g$ is also randomly initiated with $\theta_n$, where $n$ indicates the number of iterations, beginning at $n=0$
+    \item Iteration through the loop, where the distance between the target sound $x^t$ and the the synthesizer's output is measured by $L$, and $\theta$ is updated.
+    \item After $n$ number of iterations, the success of the experiment is measured by comparing the $x^t$ to the final output of the synthesizer.
 \end{enumerate}
 
 
