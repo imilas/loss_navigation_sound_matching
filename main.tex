@@ -113,11 +113,11 @@
 
 
 \section{Performance Measures}
-Manual sound-design is a feedback loop built on the designer hearing an output and measuring the similarity of what is currently generated versus what they would like to hear. This subjective, internal measurement of sound qualities is impossible to recreate between people with similar tastes, let alone digitally. Over the years, many automatic performance measure have been used in previous work, but the generality of such results from such experiments have generally viewed with a large degree of skepticism~\todo{cite}. This is because such experiments have largely been conducted in the in-domain setting, where perfect matching between the target and output sounds ($x^t$ and $x_\theta$), or target and output parameters ($\theta^t$ and $\theta$) is possible. In such cases, reaching the value of zero in the L1 difference of the spectrograms of sounds or the L1 difference between the parameters (i.e., P-Loss) has been a common performance measure.
+Manual sound-design is a feedback loop built on the designer hearing an output and measuring the similarity of what is currently generated versus what they would like to hear. This subjective, internal measurement of sound qualities is impossible to recreate between people with similar tastes, let alone digitally. Over the years, many automatic performance measure have been used in previous work, but the generality of such results from such experiments have generally viewed with a large degree of skepticism~\todo{cite}. This is because such experiments have largely been conducted in the in-domain setting, where perfect matching between the target and output sounds ($x^t$ and $x_\theta$), or target and output parameters ($\theta^t$ and $\theta$) is possible. In such cases, reaching the value of zero in L1 or MSS difference of the spectrograms of sounds or the L1 difference between the parameters (i.e., P-Loss) has been a common performance measure. 
 
+In OOD experiments, the usual automatic measures of performance are not applicable. While the subtraction of spectrograms (whether L1, L2, or MSS) can show whether or not two sounds are near identical, larger values in these measures does not correlate with larger differenes~\cite{turian2020sorry,vahidi2023mesostructures}. In addition, P-Loss requires identical parameter sets between synthesizers, which by definition cannot be applied in OOD scenarios. 
 
-
-Manual listening tests by one or more people is the gold standard for measuring the success of sound-matching experiments. 
+In this work we use manual listening tests, which are the gold standard for measuring performance in sound-matching. After all, assistance with manual sound-matching is the most common stated goal of previous sound-matching work~\todo{cite}. In addition, we propose partial P-Loss (PPL), as a reasonable automatic measure of sound-matching performance in out experiments, show whether it correlates with manual listening tests. 
 
 
 
@@ -126,7 +126,7 @@ The foundation of our experiments is the iterative loop shown in Figure~\ref{fig
 
 The definition of an experiment requires that $g^t$, $g$, the loss function $L$, and max number of iterations $n$ are fixed. Each experiment has three phases
 \begin{enumerate}
-    \item $L$ and the scenario's synthesizers $g$ and $g^t$, create a target sound $x^t$ by with random parameters $\theta^t$ given to $g^t$. $g$ is also randomly initiated with $\theta_n$, where $n$ indicates the number of iterations, beginning at $n=0$
+    \item Create a target sound $x^t$ by with random parameters $\theta^t$ given to $g^t$. $g$ is also randomly initiated with $\theta_n$, where $n$ indicates the number of iterations, beginning at $n=0$
     \item Iteration through the loop, where the distance between the target sound $x^t$ and the the synthesizer's output is measured by $L$, and $\theta$ is updated.
     \item After $n$ number of iterations, a \textit{performance measure} is used to measure success by comparing the $x^t$ to the final output of the synthesizer. 
 \end{enumerate}
