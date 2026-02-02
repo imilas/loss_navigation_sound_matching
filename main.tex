@@ -113,14 +113,16 @@
 
 
 \section{Performance Measures}
-Manual sound-design is a feedback loop built on the designer hearing an output and measuring the similarity of what is currently generated versus what they would like to hear. This subjective, internal measurement is impossible to recreate between people with similar tastes, let alone digitally. While impractical in large scales, manual listening tests by one or more people can be used to measure the success of sound-matching experiments. Over the years, many automatic alternatives have been defined in previous sound-matching experiments, but results have generally viewed with a large degree of skepticism~\todo{cite}.
+Manual sound-design is a feedback loop built on the designer hearing an output and measuring the similarity of what is currently generated versus what they would like to hear. This subjective, internal measurement of sound qualities is impossible to recreate between people with similar tastes, let alone digitally. Over the years, many automatic performance measure have been used in previous work, but the generality of such results from such experiments have generally viewed with a large degree of skepticism~\todo{cite}. This is because such experiments have largely been conducted in the in-domain setting, where perfect matching between the target and output sounds ($x^t$ and $x_\theta$), or target and output parameters ($\theta^t$ and $\theta$) is possible. In such cases, reaching the value of zero in the L1 difference of the spectrograms of sounds or the L1 difference between the parameters (i.e., P-Loss) has been a common performance measure.
 
 
-Any quantification of similarity between two sounds can be used as a performance measure, that is, any function that can be used as a loss function can also be used as a performance measure. Although we note that the use of the same function measure loss and performance is not a good practice. Minimizng a loss function and then measuring success of the experiment on how a loss function does not 
+
+Manual listening tests by one or more people is the gold standard for measuring the success of sound-matching experiments. 
+
+
 
 \section{methodology}
-The foundation of our experiments is iterative loop shown in Figure~\ref{fig:sound_design_loop_iterative}. This iterative approach is the OOD adaption of previous work by Salimi \textit{et al.}~\cite{salimi2025evaluating}. The goal of the experiments here is to measure the performance of loss functions in different OOD scenarios. In each scenario, a large number of experiments with different loss functions, but the synthesizers are unchanged. 
-
+The foundation of our experiments is the iterative loop shown in Figure~\ref{fig:sound_design_loop_iterative}. This iterative approach is the OOD adaption of previous work by Salimi \textit{et al.}~\cite{salimi2025evaluating}. The goal of the experiments here is to measure the performance of loss functions in different OOD \textit{scenarios}. Each scenario tells us about the effectiveness of loss functions in matching sounds of a certain characteristic. In each scenario, the synthesizers are unchanged, with variation in the loss functions. 
 
 The definition of an experiment requires that $g^t$, $g$, the loss function $L$, and max number of iterations $n$ are fixed. Each experiment has three phases
 \begin{enumerate}
