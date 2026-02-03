@@ -1,0 +1,9 @@
+
+The definition of an experiment requires that $g^t$, $g$, the loss function $L$, and max number of iterations $n$ are fixed. Each experiment has three phases
+\begin{enumerate}
+    \item Create a target sound $x^t$ by with random parameters $\theta^t$ given to $g^t$. $g$ is also randomly initiated with $\theta_n$, where $n$ indicates the number of iterations, beginning at $n=0$
+    \item Iteration through the loop, where the distance between the target sound $x^t$ and the the synthesizer's output is measured by $L$, and $\theta$ is updated.
+    \item After $n$ number of iterations, a \textit{performance measure} is used to measure success by comparing the $x^t$ to the final output of the synthesizer. 
+\end{enumerate}
+
+With this setup, we will have a number of performance measures for each loss function under each scenario. These result can help determine whether or not there is a best performing loss function in OOD scenarios, and which functions are better suited for what types of sounds. 
