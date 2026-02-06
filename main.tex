@@ -142,17 +142,22 @@ We evaluate the same four loss functions used in the previous in-domain study~\c
 This loss computes a pointwise L1 distance between the log-magnitude spectrograms of the imitator and target:
 \begin{equation}
     L_{\mathrm{L1}}(\theta, x^{t}) 
-    = \left\| S(x_{\theta}) - S(x^{t}) \right\|_{1}.
+    = \left\| STFT (x_{\theta}) - STFT (x^{t}) \right\|_{1}
 \end{equation}
+
+The STFT function uses 512 FFT bins, window size of 600 samples, and hop length of 100 samples~\cite{salimi2025evaluating}.
 
 \medskip
 \noindent\textbf{\SIMSESpec:}
-The scale-invariant mean-squared error (SIMSE)
-
+The scale-invariant mean-squared error (SIMSE). This loss is identical to \LoneSpec, with the exception that it utilizes the SIMSE difference instead of L1.
+\begin{equation}
+    L_{\mathrm{SIMSE}}(\theta, x^{t}) 
+    =  SIMSE( STFT (x_{\theta}) - STFT (x^{t}))
+\end{equation}
 
 \medskip
 \noindent\textbf{\JTFS:}
-The joint time-frequency scattering (JTFS) transform provides a multiresolution representation of temporal and spectral structure~\cite{vahidi2023mesostructures,anden2015joint}. The loss is defined as:
+The joint time-frequency scattering (JTFS) transform provides a multiresolution representation of temporal and spectral structures of time-series~\cite{vahidi2023mesostructures,anden2015joint}. The loss is defined as:
 \begin{equation}
     L_{\mathrm{JTFS}}(\theta, x^{t})
     = 
@@ -160,12 +165,14 @@ The joint time-frequency scattering (JTFS) transform provides a multiresolution 
         \Phi_{\mathrm{JTFS}}(x_{\theta})
         -
         \Phi_{\mathrm{JTFS}}(x^{t})
-    \right\|_{2}.
+    \right\|_{2}
 \end{equation}
+Where $\phi$ is the application of L2 distance metric to the 1-Dimensional JTFS transform provided by Andreux \textit{et. al}~\cite{kymatio,salimi2025evaluating}.
 
 \medskip
 \noindent\textbf{\DTWEnv:}
-This loss computes a dynamic time-warping (DTW) distance between amplitude envelopes:
+This loss computes a dynamic time-warping (DTW) distance between amplitude envelopes. Since the original DTW function is not differentiable, the soft-DTW distance is used instead~\cite{softdtw_jax}. The envelope of the sound is calculated by taking the STFT, and summing the values of all frequency bins at every time-step~\cite{salimi2025evaluating}.
+
 \begin{equation}
     L_{\mathrm{DTW}}(\theta, x^{t})
     =
@@ -176,7 +183,28 @@ This loss computes a dynamic time-warping (DTW) distance between amplitude envel
     \right).
 \end{equation}
 
-Full implementation details and parameter settings follow the configurations introduced in~\cite{salimi2025evaluating}.
+\subsection{Evaluation Methods}
+\label{subsec:evaluation}
+ Evaluations are the scores associated with every experiment, which are later used to determine which loss function is the best performer for which scenario. 
+
+ We have two evaluation methods: human similarity ratings (or likert scores) from a small listening survey, and the automatic partial P-Loss (PPL), which we introduce in this paper as a reasonable measure of performance in OOD settings. 
+
+\subsubsection{Partial P-Loss}
+\label{sec:partial_ploss}
+In out-of-domain sound-matching, many parameters of the target and imitator synthesizers do not correspond directly; for example, when the target employs a saw oscillator but the imitator uses noise, or when modulation structures differ.  
+To evaluate only the aspects of the signal that can meaningfully transfer across domains, we compute a \emph{partial parameter loss} (PPL).  
+
+PPL measures the L1 distance only across the subset of parameters considered perceptually critical for the scenario:
+\begin{equation}
+\mathrm{PPL} = \| \theta^{(\mathrm{crit})}_t - \hat{\theta}^{(\mathrm{crit})} \|_1,
+\end{equation}
+where $\theta^{(\mathrm{crit})}$ denotes the target’s critical parameters (e.g., filter cutoffs, modulation rates) and $\hat{\theta}^{(\mathrm{crit})}$ the corresponding recovered parameters of the imitator.  
+Parameters with no perceptual or structural correspondence are ignored. 
+If done correctly, this can enable a reasonable interpretable comparison across mismatched synthesizers. The PPL for each scenario will be unique, and we will highlight which parameters are used as we describe the scenarios later on.
+
+\subsubsection{Hearing tests}
+Hearing tests are the gold standard for measuring performance of sound-matching algorithms. For each scenario, we randomly sample 40 sound-pairs for each loss, and two of the authors listen to the 160 samples in a blinded manner (not knowing which loss was used in the iterative loop). The authors give a Likert score of 1 (not similar at all) to 5 (near identical) to these sound-pairs. These scores are then combined for a total of 320 manual given performance meaures for each scenario. 
+
 
  
 
