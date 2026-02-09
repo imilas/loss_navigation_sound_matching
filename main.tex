@@ -203,13 +203,27 @@ Parameters with no perceptual or structural correspondence are ignored.
 If done correctly, this can enable a reasonable interpretable comparison across mismatched synthesizers. The PPL for each scenario will be unique, and we will highlight which parameters are used as we describe the scenarios later on.
 
 \subsubsection{Hearing tests}
-Hearing tests are the gold standard for measuring performance of sound-matching algorithms. For each scenario, we randomly sample 40 sound-pairs for each loss, and two of the authors listen to the 160 samples in a blinded manner (not knowing which loss was used in the iterative loop). The authors give a Likert score of 1 (not similar at all) to 5 (near identical) to these sound-pairs. These scores are then combined for a total of 320 manual given performance meaures for each scenario. 
+Hearing tests are the gold standard for measuring performance of sound-matching algorithms. For each scenario, we randomly sample 40 sound-pairs for each loss, and two of the authors listen to the 160 samples in a blinded manner (not knowing which loss was used in the iterative loop). The authors give a Likert score of 1 (not similar at all) to 5 (near identical) to these sound-pairs. These scores are then combined for a total of 320 manual given performance measures for each scenario. 
+
+\subsection{Optimization Loop}
+\label{subsec:optimization}
 
 
- 
+\todo{This contradicts something you've said previous about experiments so decide if you want to keep the definition of experiments the same as before or change it and add trial}A \textit{trial} is defined as one complete 200-step optimization run with a single target sample. An \textit{experiment} consists of 300 independent trials using the same target synthesizer $g^{t}$, imitator synthesizer $g$, and loss function $L$. A \textit{scenario} consists of four experiments that share the same synthesizer pair $(g, g^{t})$ but use different loss functions.
 
+Each trial consists of a 200-iteration gradient-based optimization procedure. Starting from a random initialization $\theta_{0}$, following past work, the imitator synthesizer parameters are updated using the RMSProp optimizer with a fixed learning rate of 0.045~\cite{salimi2025evaluating}.
 
+All synthesizers are implemented in Faust and transpiled into differentiable JAX functions using DawDreamer~\cite{braun2024dac}. 
 
+\subsection{Boostrapping and Ranking Procedures}
+\label{subsec:ranking}
+
+We perform all statistical comparisons using bootstrapped performance distributions. For each experiment, the 300 trial-level scores for PPL or 80 scores from survey results are resampled with replacement, and 1000 bootstrapped means are computed. These 1000 values form an empirical distribution that avoids parametric assumptions about the underlying score distribution, and simplifies comparisons between the two performance measures~\cite{chernick2011bootstrap}.
+
+To compare loss functions within a scenario, we apply the nonparametric Scott--Knott procedure (NPSK). For each performance measure, NPSK recursively partitions the bootstrapped distribution to maximize between-group separation while minimizing within-group variance, producing statistically justified ranks without requiring normality~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}. Rank~1 corresponds to the best-performing distribution, with larger ranks indicating worse performance. Ties occur when two or more distributions cannot be statistically distinguished under the NPSK splitting criterion, resulting in equal assigned ranks.
+
+\subsection{Scenarios}
+Now that we have an estima
 
 \clearpage
 \bibliographystyle{alpha}
