@@ -76,7 +76,7 @@
 
 
 \section{Performance Measures}
-Manual sound-design is a feedback loop built on the designer hearing an output and measuring the similarity of what is currently generated versus what they would like to hear. This subjective, internal measurement of sound qualities is impossible to recreate between people with similar tastes, let alone digitally. Over the years, many automatic performance measure have been used in previous work, but the generality of such results from such experiments have generally viewed with a large degree of skepticism~\todo{cite}. This is because such experiments have largely been conducted in the in-domain setting, where perfect matching between the target and output sounds ($x^t$ and $x_\theta$), or target and output parameters ($\theta^t$ and $\theta$) is possible. In such cases, reaching the value of zero in L1 or MSS difference of the spectrograms of sounds or the L1 difference between the parameters (i.e., P-Loss) has been a common performance measure. 
+Manual sound-design is a feedback loop built on the designer hearing an output and measuring the similarity of what is currently generated versus what they would like to hear. This subjective, internal measurement of sound qualities is impossible to recreate between people with similar tastes, let alone digitally. Over the years, many automatic performance measure have been used in previous work, but the generality of such results from such experiments have generally viewed with a large degree of skepticism~\todo{cite}. This is because such experiments have largely been conducted in the in-domain setting, where perfect matching between the target and output sounds ($x^t$ and $x_\theta$), or target and output parameters ($\theta^t$ and $\theta$) is possible. In such cases, reaching the value of zero in L2 or MSS difference of the spectrograms of sounds or the L2 difference between the parameters (i.e., P-Loss) has been a common performance measure. 
 
 In OOD experiments, the usual automatic measures of performance are not applicable. While the subtraction of spectrograms (whether L1, L2, or MSS) can show whether or not two sounds are near identical, larger values in these measures does not correlate with larger differenes~\cite{turian2020sorry,vahidi2023mesostructures}. In addition, P-Loss requires identical parameter sets between synthesizers, which by definition cannot be applied in OOD scenarios. 
 
@@ -194,9 +194,9 @@ This loss computes a dynamic time-warping (DTW) distance between amplitude envel
 In out-of-domain sound-matching, many parameters of the target and imitator synthesizers do not correspond directly; for example, when the target employs a saw oscillator but the imitator uses noise, or when modulation structures differ.  
 To evaluate only the aspects of the signal that can meaningfully transfer across domains, we compute a \emph{partial parameter loss} (PPL).  
 
-PPL measures the L1 distance only across the subset of parameters considered perceptually critical for the scenario:
+PPL measures the L2 distance only across the subset of parameters considered perceptually critical for the scenario:
 \begin{equation}
-\mathrm{PPL} = \| \theta^{(\mathrm{crit})}_t - \hat{\theta}^{(\mathrm{crit})} \|_1,
+\mathrm{PPL} = \| \theta^{(\mathrm{crit})}_t - \hat{\theta}^{(\mathrm{crit})} \|_2,
 \end{equation}
 where $\theta^{(\mathrm{crit})}$ denotes the target’s critical parameters (e.g., filter cutoffs, modulation rates) and $\hat{\theta}^{(\mathrm{crit})}$ the corresponding recovered parameters of the imitator.  
 Parameters with no perceptual or structural correspondence are ignored. 
@@ -223,10 +223,10 @@ We perform all statistical comparisons using bootstrapped performance distributi
 To compare loss functions within a scenario, we apply the nonparametric Scott--Knott procedure (NPSK). For each performance measure, NPSK recursively partitions the bootstrapped distribution to maximize between-group separation while minimizing within-group variance, producing statistically justified ranks without requiring normality~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}. Rank~1 corresponds to the best-performing distribution, with larger ranks indicating worse performance. Ties occur when two or more distributions cannot be statistically distinguished under the NPSK splitting criterion, resulting in equal assigned ranks.
 
 \section{Scenarios and Results}
-\subsubsection{Band Pass Matching}
+\subsection{Band Pass Matching}
 In this scenario, the two synthesizers are the application of band-passing to noise (\BPNoise) and saw waves (\BPSaw). Examples of these programs are given in Listings~\ref{lst:program0} and ~\ref{lst:program0_saw} respectively. Previous observations have shown that with in-domain sound-matching of \BPNoise, the loss functions utilizing spectrogram differences were the best performers, speculating that this due to the clear visibility of filter-cutoffs in a spectrogram~\cite{salimi2025evaluating}. 
  
- Here we use \BPSaw as the target synthesizer, and \BPNoise as the imitator. We define success in sound-matching here as the L1 proximity of the imitator's high and low-pass cutoffs to the corresponding parameters in the target synthesizer. This creates an out-of-domain experiment where P-Loss is an objective measure of success. 
+ Here we use \BPSaw as the target synthesizer, and \BPNoise as the imitator. We define success in sound-matching here as the L2 distance of the imitator's high and low-pass cutoffs to the corresponding parameters in the target synthesizer. This creates an out-of-domain experiment where PP-Loss is an objective measure of success. 
 
 Like previous work, hearing tests reveal the spectrogram based losses as appropriate for band-passing~\cite{salimi2025evaluating}. As shown in Table~\ref{tab:scenario_ranks}, both hearing tests and PP-Loss determine \SIMSESpec to be the best performing loss function for the band-passing scenario. However, there are differences in how ranks 2-4 were assigned. 
  
@@ -255,10 +255,10 @@ Like previous work, hearing tests reveal the spectrogram based losses as appropr
 & \textbf{PP-Loss} & \textbf{Hearing}
 & \textbf{PP-Loss} & \textbf{Hearing} \\
 \hline
-SIMSE & 2 & -- & 3 & -- & 2 & -- & 1 & 1 & 3 & -- & 2 & -- & 3 & -- \\
-L1    & 3 & -- & 4 & -- & 4 & -- & 3 & 2 & 4 & -- & 3 & -- & 2 & -- \\
-JTFS  & 4 & -- & 2 & -- & 3 & -- & 4 & 4 & 1 & -- & 2 & -- & 1 & -- \\
-DTW   & 1 & -- & 1 & -- & 1 & -- & 2 & 3 & 2 & -- & 1 & -- & 4 & -- \\
+SIMSE & 2 & 3 & 3 & 1 & 2 & 2 & 1 & 1 & 3 & -- & 2 & -- & 3 & -- \\
+L1    & 3 & 2 & 4 & 2 & 4 & 1 & 3 & 2 & 4 & -- & 3 & -- & 2 & -- \\
+JTFS  & 4 & 4 & 2 & 3 & 3 & 2 & 4 & 4 & 1 & -- & 2 & -- & 1 & -- \\
+DTW   & 1 & 1 & 1 & 3 & 1 & 3 & 2 & 3 & 2 & -- & 1 & -- & 4 & -- \\
 \hline
 \end{tabular}%
 }
@@ -348,15 +348,15 @@ process = sineOsc(amp)*sineOsc(car);
 \label{sec:am_sound_matching}
 We test three OOD scenarios for AM-Synthesizers. \FMMod and \FMModvtwo as described in Listings~\ref{lst:program3} and~\ref{lst:program3_v2} are the basis for the three variations of this scenario. \FMMod generates a sound by modifying the amplitude of a saw oscillator with a sinusoidal LFO. \FMModvtwo is a modification which uses sine oscillators for both the carrier and the modulator. In this section, we will refer to the LFO frequency as \texttt{amp} and carrier frequency as \texttt{car}. The value of \texttt{amp} shapes the amplitude of the sound (or the wobbling effect), and \texttt{car} determines the frequency of the sound.
 
-In these scenarios, the \texttt{amp} values can match, but the frequency content cannot. In version 1 (Non-Overlapping frequencies), the range of available frequencies are different. In version 2 (Sine Target, Saw Imitator), the imitator can only make sine tones while the target can only makes saw waves, and vice versa for scenario 3 (Saw Target, Sine Imitator). A question we have to consider is: how would we match the sounds manually? Here we see why OOD experiments are difficult, as describing sound similarity can be quite subjective.
+In these scenarios, the \texttt{amp} values can match, but the frequency content cannot. In version 1 (Non-Overlapping Frequencies), the range of available frequencies are different. In version 2 (Sine Target, Saw Imitator), the imitator can only make sine tones while the target can only makes saw waves, and vice versa for scenario 3 (Saw Target, Sine Imitator). A question we have to consider is: how would we match the sounds manually? Here we see why OOD experiments are difficult, as describing sound similarity can be quite subjective.
 
 If the carrier frequencies could not possibly match (as in scenario 1), the best method for matching the carrier frequencies is not clear. Although the distances between the frequencies can be reduced, there will always be a gap. What's more, matching musical notes is not simply a matter of frequency values. For example, let's consider the commonly used equal temperament tuning system~\cite{sethares2005tuning}, where the A4 note is usually associated with 440 Hz. In this system, if the target synth is producing a frequency at 440 Hz, and the imitator can only produce values below 400 Hz, then the correct objective for the frequency is dependent on the sound designers needs. 400Hz might be the best frequency parameter, since it is as close as we can get to 440Hz; or perhaps the value of 220 Hz (corresponding to A3) is a better match than the value of 392 Hz (corresponding to G4). In general, considering the commonly used logarithmic scaling of musical notes, it can be argued that the best matches for any frequency $f$ are $f*2^{n}$, where n is any integer~\cite{young1939terminology}. \todo{(does this tie back into the hypothesis that the sinusoidal nature of sound can cause non-smooth loss functions)}
 
-We take the proximity of \texttt{amp} values as a reasonable measure of success: not only can the \texttt{amp} values between the imitator and target have the same range, but also transfer of the amplitude changes from one sample to another is a common sound-design task \cite{engel2020ddsp}. To measure sound matching success, the carrier values are ignored, and the partial P-Loss is set to the difference between the amp values in $\theta_t$ and the output parameters.
+We ignore the frequency parameter for the PPL definition, and take the proximity of \texttt{amp} values as a reasonable measure of success: not only can the \texttt{amp} values between the imitator and target have the same range, but also the transfer of the amplitude changes from one sample to another is a common sound-design task \cite{engel2020ddsp}. To measure sound matching success, the PPL is set to the squared difference between the amp values in $\theta_t$ and the output parameters.
 
 \subsubsection{Non-Overlapping frequencies}
 \label{sec:am_sound_matching_nonoverlapping}
-For this scenario, we choose two instances of \FMModvtwo, with the carriers having non-overlapping frequency ranges of 30-250 Hz for the target synth and 1000-5000 Hz for the imitator. Here, the carrier is a sine oscillator, therefore the clashing of higher harmonics can be factored out as a source of confusion in the loss function landscape. Since there is no overlap in the carrier frequency ranges, the tone of the imitator and target synth can never match, making this a simple out-of-domain scenario. As expected, \DTWEnv outperforms other loss functions as shown in Figure~\ref{fig:npsk_am_synths} (a).
+For this scenario, we choose two instances of \FMModvtwo, with the carriers having non-overlapping frequency ranges of 30-250 Hz for the target synth and 1000-5000 Hz for the imitator. Here, the carrier is a sine oscillator, therefore the clashing of higher harmonics can be factored out as a source of confusion in the loss function landscape. Since there is no overlap in the carrier frequency ranges, the tone of the imitator and target synth can never match, making this a simple out-of-domain scenario. As shown in Table~\ref{tab:scenario_ranks}, \DTWEnv outperforms other loss functions in both PPL and hearing tests, and \JTFS is the worst performer.
 
 \subsubsection{Sine Target, Saw Imitator}
 \label{sec:am_sinetarget_sawimitate}
