@@ -223,6 +223,7 @@ We perform all statistical comparisons using bootstrapped performance distributi
 To compare loss functions within a scenario, we apply the nonparametric Scott--Knott procedure (NPSK). For each performance measure, NPSK recursively partitions the bootstrapped distribution to maximize between-group separation while minimizing within-group variance, producing statistically justified ranks without requiring normality~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}. Rank~1 corresponds to the best-performing distribution, with larger ranks indicating worse performance. Ties occur when two or more distributions cannot be statistically distinguished under the NPSK splitting criterion, resulting in equal assigned ranks.
 
 \section{Scenarios and Results}
+\todo{What are you going to describe? and mention sampling rate is set to 48000}
 \subsection{Band Pass Matching}
 In this scenario, the two synthesizers are the application of band-passing to noise (\BPNoise) and saw waves (\BPSaw). Examples of these programs are given in Listings~\ref{lst:program0} and ~\ref{lst:program0_saw} respectively. Previous observations have shown that with in-domain sound-matching of \BPNoise, the loss functions utilizing spectrogram differences were the best performers, speculating that this due to the clear visibility of filter-cutoffs in a spectrogram~\cite{salimi2025evaluating}. 
  
@@ -245,7 +246,7 @@ Like previous work, hearing tests reveal the spectrogram based losses as appropr
 & \multicolumn{2}{c|}{\textbf{BP: noise $\rightarrow$ saw}} 
 & \multicolumn{2}{c|}{\textbf{Chirp: delayed}} 
 & \multicolumn{2}{c|}{\textbf{Chirp: pulsating}} 
-& \multicolumn{2}{c|}{\textbf{Chirp: normal}} \\
+& \multicolumn{2}{c|}{\textbf{Chirp: no delay}} \\
 \cline{2-15}
 & \textbf{PP-Loss} & \textbf{Hearing}
 & \textbf{PP-Loss} & \textbf{Hearing}
@@ -255,10 +256,10 @@ Like previous work, hearing tests reveal the spectrogram based losses as appropr
 & \textbf{PP-Loss} & \textbf{Hearing}
 & \textbf{PP-Loss} & \textbf{Hearing} \\
 \hline
-SIMSE & 2 & 3 & 3 & 1 & 2 & 2 & 1 & 1 & 3 & -- & 2 & -- & 3 & -- \\
-L1    & 3 & 2 & 4 & 2 & 4 & 1 & 3 & 2 & 4 & -- & 3 & -- & 2 & -- \\
-JTFS  & 4 & 4 & 2 & 3 & 3 & 2 & 4 & 4 & 1 & -- & 2 & -- & 1 & -- \\
-DTW   & 1 & 1 & 1 & 3 & 1 & 3 & 2 & 3 & 2 & -- & 1 & -- & 4 & -- \\
+SIMSE & 2 & 3 & 3 & 1 & 2 & 2 & 1 & 1 & 3 & 3 & 2 & 2 & 3 & 3 \\
+L1    & 3 & 2 & 4 & 2 & 4 & 1 & 3 & 2 & 4 & 4 & 3 & 3 & 2 & 1 \\
+JTFS  & 4 & 4 & 2 & 3 & 3 & 2 & 4 & 4 & 1 & 1 & 2 & 2 & 1 & 1 \\
+DTW   & 1 & 1 & 1 & 3 & 1 & 3 & 2 & 3 & 2 & 2 & 1 & 1 & 4 & 4 \\
 \hline
 \end{tabular}%
 }
@@ -360,33 +361,35 @@ For this scenario, we choose two instances of \FMModvtwo, with the carriers havi
 
 \subsubsection{Sine Target, Saw Imitator}
 \label{sec:am_sinetarget_sawimitate}
-In this scenario, we select \FMModvtwo as the target, and \FMMod as the imitator, both with \texttt{amp} ranges of 1-15 Hz and \texttt{car} range of 30-5000 Hz. Here we again see that the \DTWEnv function performs the best as shown in Figure~\ref{fig:npsk_am_synths} (b).
+In this scenario, we select \FMModvtwo as the target, and \FMMod as the imitator, both with \texttt{amp} ranges of 1-15 Hz and \texttt{car} range of 30-5000 Hz. Here we again see that the \DTWEnv function objectively finds the closest amplitude value, yet the hearing tests align with the spectrogram based losses. A likely explanation here is that \DTWEnv clearly excels at finding the correct amp parameter, it ignores frequency content, which leads to low rankings assigned by manual listeners. 
 
 
 \subsubsection{Saw Target, Sine Imitator}
 \label{sec:am_sawtarget_sineimitate}
-This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also see here that \DTWEnv is the best performer, as shown in Figure~\ref{fig:npsk_am_synths} (c).
+This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also see here that \DTWEnv is the best performer according to PPL, but manual raters are partial to the spectrogram based losses,  likely due to reasons discussed in the previous sub-scenario.
 
 \input{extra_figures/am_scenarios}
 \input{extra_figures/pitch_bend_scenarios}
 \subsection{Pitch-Bending}
-Vahidi et al. showed that \JTFS out-performs MSS in in-domain sound-matching of chirplet synthesizers~\cite{vahidi2023mesostructures} \todo{which does what?}. Here we test three different scenarios with pitch-bending synthesizers that resemble chirplets. The main scenario is out-of-domain, where the chirplets have a randomly assigned built-in delay offset. The second scenario is in-domain, where we eliminate the random delay to see the effect on performance. Do further demonstrate that \JTFS is not necessarily the best loss function for ``mesostructures'' as previously contended~\cite{vahidi2023mesostructures}, we introduce a third scenario that is also in-domain, but the chirplet frequency does not strictly increase linearly on a log-scale.
+Vahidi et al. showed that \JTFS out-performs MSS in in-domain sound-matching of chirplet synthesizers~\cite{vahidi2023mesostructures}. Chirplets are tones which increase in frequency at an exponential rate, the frequency of the tone and the rate of increase being the two major parameters. Here we test three different scenarios with pitch-bending synthesizers that resemble chirplets. The main scenario (Delayed Pitch-Bending) is OOD, where the chirplets have a randomly assigned built-in delay offset. The second scenario is in-domain, where we eliminate the random delay to see the effect on performance. We introduce a third scenario (pulsating Pitch-bend) that is also in-domain, but the chirplet frequency does not strictly increase linearly on a log-scale. 
 
 
 \subsubsection{Delayed Pitch-Bending}
-The program here is a sine wave with a steady starting pitch for a random amount of time; after a time delay of 5000-30000 samples (the sampling rate is set to 48000), an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds, making this an out-of-domain example.
+The program here is a sine wave with a steady starting pitch for a random amount of time; after a time delay of 5000-30000 samples, an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds, making this an out-of-domain example.
+
+This scenario shows identical ratings between both PPL and hearing tests. Both measures show \JTFS as the best performing loss, which is consistent with the findings of Vahidi et al. which showed \JTFS to be agnostic to slight perturbations in the frequency and time scale, at least when matching chirplet synthesizers\cite{vahidi2023mesostructures}.
 
 \subsubsection{No-Delay Pitch-Bending}
-This scenario is identical to the first, except the delay is removed. As seen in Figure~\ref{fig:npsk_pitch_bends} (b), while there are noticeable shifts in the rankings, \JTFS remains the best performer, which is consistent with the results by Vahidi et al.~\cite{vahidi2023mesostructures}.
+As a follow-up experiment, we conducted the \textit{in-domain} comparison of pitch-bending synthesizers \textit{without} delay. This scenario would be a close replication of the original in-domain experiments by Vahidi \textit{et. al.}. In other words, it is identical to the delayed pitch-bending experiment but the delay variable $\delta$ is always set to 0 (see Listing~\ref{lst:pitchbendup}). As expected, \JTFS remains the best performer according to PPL and hearing tests.
 
 \subsubsection{Pulsating Pitch-Bending}
-Vahidi et al. contended that \JTFS is the appropriate loss function for the capture of ``mesostructures'' (\todo{what does it mean?}). Previous work has shown that this is not always the case using in-domain scenarios~\cite{salimi2025evaluating}. As shown in Listing~\ref{lst:pitchbendup_pulse}, this scenario adds a pulse to the pitch-bending synthesizer, such that the frequency is shifted upwards overall, but also pulsing up and down within a narrow range. This characteristic is fully within the definition of ``mesostructure'', yet \JTFS is tied in second with \SIMSESpec, behind \DTWEnv in first place. 
+Vahidi et al. contended that \JTFS is the appropriate loss function for the capture of ``mesostructures''. Previous work has shown that this is not always the case with in-domain scenarios~\cite{salimi2025evaluating}. As shown in Listing~\ref{lst:pitchbendup_pulse}, this scenario adds a pulse to the pitch-bending synthesizer, such that the frequency is shifted upwards overall, but also pulsing up and down within a narrow range. This characteristic is fully within the definition of ``mesostructure'', yet \JTFS is outperfomed by \DTWEnv according to PPL and hearing tests. 
 
 % Another conclusion here is that all loss function perform much worse on the proximity scale
 
 Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset. Figure~\ref{fig:npsk_pitch_bends} the right side shows that \JTFS is the best performing loss function, which is consistent with the previous findings by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. 
 
-An interesting follow-up experiment conducted was the \textit{in-domain} comparison of pitch-bending synthesizers \textit{without} delay. This is identical to the delayed pitch-bending experiment but setting the delay variable $\delta=0$. The left side of Figure~\ref{fig:npsk_pitch_bends} shows that \DTWEnv is the better performer in the in-domain scenario.
+
 
 \begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp program. when an instance of the synthezier is created, $\delta$ is randomly assigned a value between 5000-30000 samples (for ``Delayed Pitch-bend) or set to 0 (No-delay Pitch-bend)}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
 import("stdfaust.lib");
