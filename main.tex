@@ -71,9 +71,7 @@
  Here we present a series of differentiable out-of-domain sound-matching scenarios using four loss functions and various synthesizers. The experiments here are designed such that differences in parameters (whether all parameters or a subset) are well suited for measuring performance in sound-matching. The out-of-domain experiments here showcase the characteristics of the different loss functions, and confirm that their success is highly dependent on the method of synthesis and the target sound. 
 \end{abstract}
 
-
-
-
+\section{Introduction}
 
 \section{Performance Measures}
 Manual sound-design is a feedback loop built on the designer hearing an output and measuring the similarity of what is currently generated versus what they would like to hear. This subjective, internal measurement of sound qualities is impossible to recreate between people with similar tastes, let alone digitally. Over the years, many automatic performance measure have been used in previous work, but the generality of such results from such experiments have generally viewed with a large degree of skepticism~\todo{cite}. This is because such experiments have largely been conducted in the in-domain setting, where perfect matching between the target and output sounds ($x^t$ and $x_\theta$), or target and output parameters ($\theta^t$ and $\theta$) is possible. In such cases, reaching the value of zero in L2 or MSS difference of the spectrograms of sounds or the L2 difference between the parameters (i.e., P-Loss) has been a common performance measure. 
@@ -391,7 +389,7 @@ Here, we can define success with P-Loss, that is, how well the \texttt{increase\
 
 
 
-\begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp program. when an instance of the synthezier is created, $\delta$ is randomly assigned a value between 5000-30000 samples (for ``Delayed Pitch-bend) or set to 0 (No-delay Pitch-bend)}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+\begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp program. when an instance of the synthezier is created, $\delta$ is randomly assigned a value between 5000-30000 samples (Delayed Pitch-bend) or set to 0 (No-delay Pitch-bend)}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
 import("stdfaust.lib");
 increase_speed = hslider("increase_speed",2,1,20,0.1);
 starting_pitch = hslider("starting_pitch",200,30,500,0.1);
@@ -414,7 +412,15 @@ process = sineOsc(30 + increasing_pitch(increase_speed) + sawOsc(pulse_rate) * 5
 % Different forms of gradient analysis has been conducted in previous works~\cite{masuda2023improving,turian2020sorry,vahidi2023mesostructures}.
 
 
+\section{Discussion}
+\subsection{Key Findings}
+In the BP scenario, we see that \SIMSESpec is the best performer, which is consistent with previous findings, and highlights \SIMSESpec as an alternative to the commonly used application of L1 and L2 distances to spectrograms~\cite{turian2020sorry}.
 
+AM-Synthesis results are chaotic. In the non-overlapping frequencies scenario, \DTWEnv is the best performer due to its sole focus on changes in sound-envelope. However, when harmonics imperfectively overlap in the sine-to-saw and saw-to-sine scenarios, \DTWEnv outperforms other losses in finding the closest amplitude modulation frequency, but hearing tests show a prefernce for spectrogram based losses. This further solidifies the utility of DTW bases losses in sound-design, but highlights its limitation in harmonic adjustments. 
+
+The three chirplet scenarios show perfect matching between both PP-Loss and hearing tests. In the delayed and no-delay matching scenarios which resemble previous work by Vahidi \textit{et al.} confirm the utility of \JTFS in chirplet matching. However, we see that a slight variation on this setup as shown by the pulsating chirplet scenario favors \DTWEnv. This further questions the suitability of \JTFS as a loss function for ``mesostructures'' as a whole~\cite{vahidi2023mesostructures}.
+
+In 5 out of the 7 scenarios, the PP-Loss and Hearing tests had identical first rank ratings. This shows that a well designed and justified PP-Loss could be utilized in automated OOD experiments. 
 
 
 
