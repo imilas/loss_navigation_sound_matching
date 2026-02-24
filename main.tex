@@ -293,7 +293,7 @@ PPL measures the L2 distance only across the subset of parameters considered per
 \end{equation}
 where $\theta^{(\mathrm{crit})}$ denotes the target’s critical parameters (e.g., filter cutoffs, modulation rates) and $\hat{\theta}^{(\mathrm{crit})}$ the corresponding recovered parameters of the imitator.  
 Parameters with no perceptual or structural correspondence are ignored. 
-If done correctly, this can enable a reasonable interpretable comparison across mismatched synthesizers. The PPL for each scenario will be unique, and we will highlight which parameters are used as we describe the scenarios later on.
+If done correctly, this can enable a reasonable interpretable comparison across mismatched synthesizers. The PPL for each scenario will be unique, and we will highlight which parameters are used as we describe the scenarios in Section~\ref{sec:scenarios}.
 
 \subsubsection{Hearing tests}
 Hearing tests are the gold standard for measuring performance of sound-matching algorithms. For each scenario, we randomly sample 40 sound-pairs for each loss, and two of the authors listen to the 160 samples in a blinded manner (not knowing which loss was used in the iterative loop). The authors give a Likert score of 1 (not similar at all) to 5 (near identical) to these sound-pairs. These scores are then combined for a total of 320 manual given performance measures for each scenario. 
@@ -341,7 +341,8 @@ We perform all statistical comparisons using bootstrapped performance distributi
 To compare loss functions within a scenario, we apply the nonparametric Scott--Knott procedure (NPSK). For each performance measure, NPSK recursively partitions the bootstrapped distribution to maximize between-group separation while minimizing within-group variance, producing statistically justified ranks without requiring normality~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}. Rank~1 corresponds to the best-performing distribution, with larger ranks indicating worse performance. Ties occur when two or more distributions cannot be statistically distinguished under the NPSK splitting criterion, resulting in equal assigned ranks.
 
 \section{Scenarios and Results}
-\todo{What are you going to describe? and mention sampling rate is set to 48000}
+\label{sec:scenarios}
+\todo{mention sampling rate is set to 48000}
 \subsection{Band Pass Matching}
 In this scenario, the two synthesizers are the application of band-passing to noise (\BPNoise) and saw waves (\BPSaw). Examples of these programs are given in Listings~\ref{lst:program0} and ~\ref{lst:program0_saw} respectively. Previous observations have shown that with in-domain sound-matching of \BPNoise, the loss functions utilizing spectrogram differences were the best performers, speculating that this due to the clear visibility of filter-cutoffs in a spectrogram~\cite{salimi2025evaluating}. 
  
