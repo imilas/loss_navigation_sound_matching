@@ -287,55 +287,24 @@ PPL measures the L2 distance only across the subset of parameters considered per
 \begin{equation}
 \mathrm{PPL} = \| \theta^{(\mathrm{crit})}_t - \hat{\theta}^{(\mathrm{crit})} \|_2,
 \end{equation}
-where $\theta^{(\mathrm{crit})}$ denotes the target’s critical parameters (e.g., filter cutoffs, modulation rates) and $\hat{\theta}^{(\mathrm{crit})}$ the corresponding recovered parameters of the imitator.  In OOD scenarios, some level of subjectivity is unavoidable in selecting such critical parameters. However, the scenarios here's have been designed with a single, targeted focus in order to make the PPL definition fairly straightforward.
-
-Parameters with no perceptual or structural correspondence are ignored. 
-If done correctly, this can enable a reasonable interpretable comparison across mismatched synthesizers.  The exact parameters used for each scenario will be discussed in their corresponding subsection later on in Section~\ref{sec:scenarios}.
+Here $\theta^{(\mathrm{crit})}_t$ and $\hat{\theta}^{(\mathrm{crit})}$ denote the corresponding parameters of interest between $g$ and $g^t$.  In OOD scenarios, some level of subjectivity is unavoidable in selecting such critical parameters. However, the scenarios here have been designed with a targeted focus on a single synthesis task in order to make the PPL definition fairly straightforward. With careful design, PPL can be a reasonable interpretable comparison across mismatched synthesizers. The exact PPL parameters used for each scenario will be discussed in their corresponding subsection later on in Section~\ref{sec:scenarios}.
 
 \subsubsection{Hearing tests}
 Hearing tests are the gold standard for measuring performance of sound-matching algorithms. Like previous work~\cite{salimi2025evaluating}, for each scenario, we randomly sample 40 sound-pairs for each loss, and two of the authors listen to the 160 samples in a blinded manner (not knowing which loss was used in the iterative loop). The authors give a Likert score of 1 (not similar at all) to 5 (near identical) to these sound-pairs. These scores are then combined for a total of 320 performance measures for each scenario. 
 
-\todo{maybe this should be in results}Moderate to strong correlation was observed between the listeners' likert scores, using speraman's rank correlation test~\cite{spearman1987proof}. This strengthens our confidence in using human assigned scores as the ground truth. Figure~\ref{tab:listener_correlation} shows the individual and overall $\rho$ and p-values.
-
-\begin{table}[t]
-\centering
-\small
-\renewcommand{\arraystretch}{1}
-\begin{tabular}{|l| c |c|}
-\hline
-\textbf{Scenario} & $\boldsymbol{\rho}$ & \textbf{p-value} \\
-\hline
-AM: non-overlapping freqs        & 0.435 & $8.97\times10^{-9}$ \\
-AM: sine $\rightarrow$ saw       & 0.359 & $3.23\times10^{-6}$ \\
-AM: saw $\rightarrow$ sine       & 0.458 & $1.15\times10^{-9}$ \\
-BP: noise $\rightarrow$ saw      & 0.550 & $4.77\times10^{-14}$ \\
-Chirp: delayed pitchbend         & 0.665 & $8.39\times10^{-22}$ \\
-Chirp: pulsating                 & 0.561 & $1.24\times10^{-14}$ \\
-Chirp: normal                    & 0.643 & $4.85\times10^{-20}$ \\
-\hline
-\textbf{Overall (all scenarios)} & \textbf{0.592} & \textbf{$4.95\times10^{-107}$} \\
-\hline
-\end{tabular}
-\caption{Spearman correlation and p-values for agreement between two listeners}
-\label{tab:listener_correlation}
-\end{table}
-
-
 \subsection{Optimization Loop}
 \label{subsec:optimization}
 
-\todo{This contradicts something you've said previous about experiments so decide if you want to keep the definition of experiments the same as before or change it and add trial}A \textit{trial} is defined as one complete 200-step optimization run with a single target sample. An \textit{experiment} consists of 300 independent trials using the same target synthesizer $g^{t}$, imitator synthesizer $g$, and loss function $L$. A \textit{scenario} consists of four experiments that share the same synthesizer pair $(g, g^{t})$ but use different loss functions.
+As stated previously, an experiment is defined as one complete 200-step optimization run. Like the previous in-domain study, we run 300 experiments using the same target synthesizer $g^{t}$, imitator synthesizer $g$, and loss function $L$. A \textit{scenario} consists of four experiments that share the same synthesizer pair $(g, g^{t})$ but use different loss functions. Giving 300 evaluation scores for each loss function in each scenario.
 
-Each trial consists of a 200-iteration gradient-based optimization procedure. Starting from a random initialization $\theta_{0}$, following past work, the imitator synthesizer parameters are updated using the RMSProp optimizer with a fixed learning rate of 0.045~\cite{salimi2025evaluating}.
-
-All synthesizers are implemented in Faust and transpiled into differentiable JAX functions using DawDreamer~\cite{braun2024dac}. 
+In each experiment, the target sound is made via random parameters $\theta_{0}$ given to the target synthesizer. Following past work, the imitator synthesizer parameters are updated using the RMSProp optimizer with a fixed learning rate of 0.045~\cite{salimi2025evaluating}. All synthesizers are implemented in Faust and transpiled into differentiable JAX functions using DawDreamer~\cite{braun2024dac}. 
 
 \subsection{Boostrapping and Ranking Procedures}
 \label{sec:bootstrapping_ranking}
 
-We perform all statistical comparisons using bootstrapped performance distributions. For each experiment, the 300 trial-level scores for PPL or 80 scores from survey results are resampled with replacement, and 1000 bootstrapped means are computed. These 1000 values form an empirical distribution that avoids parametric assumptions about the underlying score distribution, and simplifies comparisons between the two performance measures~\cite{chernick2011bootstrap}.
+We perform all statistical comparisons using bootstrapped performance distributions. The 300 PPL scores or 80 likert scores are sampled with replacement, and 1000 bootstrapped means are computed. These 1000 values form an empirical distribution that avoids parametric assumptions about the underlying score distribution, and simplifies comparisons between the two performance measures~\cite{chernick2011bootstrap}.
 
-To compare loss functions within a scenario, we apply the nonparametric Scott--Knott procedure (NPSK). For each performance measure, NPSK recursively partitions the bootstrapped distribution to maximize between-group separation while minimizing within-group variance, producing statistically justified ranks without requiring normality~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}. Rank~1 corresponds to the best-performing distribution, with larger ranks indicating worse performance. Ties occur when two or more distributions cannot be statistically distinguished under the NPSK splitting criterion, resulting in equal assigned ranks.
+To compare loss functions within a scenario, we apply the nonparametric Scott-Knott procedure (NPSK). For each performance measure, NPSK recursively partitions the bootstrapped distribution to maximize between-group separation while minimizing within-group variance, producing statistically justified ranks without requiring normality~\cite{tantithamthavorn2017mvt,tantithamthavorn2018optimization}. Rank~1 corresponds to the best-performing distribution, with larger ranks indicating worse performance. Ties occur when two or more distributions cannot be statistically distinguished under the NPSK splitting criterion, resulting in equal assigned ranks.
 
 \section{Scenarios and Results}
 \label{sec:scenarios}
@@ -541,6 +510,31 @@ AM-Synthesis results are chaotic. In the non-overlapping frequencies scenario, \
 The three chirplet scenarios show perfect matching between both PP-Loss and hearing tests. In the delayed and no-delay matching scenarios which resemble previous work by Vahidi \textit{et al.} confirm the utility of \JTFS in chirplet matching. However, we see that a slight variation on this setup as shown by the pulsating chirplet scenario favors \DTWEnv. This further questions the suitability of \JTFS as a loss function for ``mesostructures'' as a whole~\cite{vahidi2023mesostructures}.
 
 In 5 out of the 7 scenarios, the PP-Loss and Hearing tests had identical first rank ratings. This shows that a well designed and justified PP-Loss could be utilized in automated OOD experiments. 
+
+Moderate to strong correlation was observed between the listeners' likert scores, using speraman's rank correlation test~\cite{spearman1987proof}. This strengthens our confidence in using human assigned scores as the ground truth. Figure~\ref{tab:listener_correlation} shows the individual and overall $\rho$ and p-values.
+
+\begin{table}[t]
+\centering
+\small
+\renewcommand{\arraystretch}{1}
+\begin{tabular}{|l| c |c|}
+\hline
+\textbf{Scenario} & $\boldsymbol{\rho}$ & \textbf{p-value} \\
+\hline
+AM: non-overlapping freqs        & 0.435 & $8.97\times10^{-9}$ \\
+AM: sine $\rightarrow$ saw       & 0.359 & $3.23\times10^{-6}$ \\
+AM: saw $\rightarrow$ sine       & 0.458 & $1.15\times10^{-9}$ \\
+BP: noise $\rightarrow$ saw      & 0.550 & $4.77\times10^{-14}$ \\
+Chirp: delayed pitchbend         & 0.665 & $8.39\times10^{-22}$ \\
+Chirp: pulsating                 & 0.561 & $1.24\times10^{-14}$ \\
+Chirp: normal                    & 0.643 & $4.85\times10^{-20}$ \\
+\hline
+\textbf{Overall (all scenarios)} & \textbf{0.592} & \textbf{$4.95\times10^{-107}$} \\
+\hline
+\end{tabular}
+\caption{Spearman correlation and p-values for agreement between two listeners}
+\label{tab:listener_correlation}
+\end{table}
 
 
 
