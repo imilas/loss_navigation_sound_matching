@@ -501,8 +501,7 @@ process = sineOsc(30 + increasing_pitch(increase_speed) + sawOsc(pulse_rate) * 5
 % Different forms of gradient analysis has been conducted in previous works~\cite{masuda2023improving,turian2020sorry,vahidi2023mesostructures}.
 
 
-\section{Discussion}
-\subsection{Key Findings}
+\section{Discussion and Key Findings}
 In the BP scenario, we see that \SIMSESpec is the best performer, which is consistent with previous findings, and highlights \SIMSESpec as an alternative to the commonly used application of L1 and L2 distances to spectrograms~\cite{turian2020sorry}.
 
 AM-Synthesis results are chaotic. In the non-overlapping frequencies scenario, \DTWEnv is the best performer due to its sole focus on changes in sound-envelope. However, when harmonics imperfectively overlap in the sine-to-saw and saw-to-sine scenarios, \DTWEnv outperforms other losses in finding the closest amplitude modulation frequency, but hearing tests show a prefernce for spectrogram based losses. This further solidifies the utility of DTW bases losses in sound-design, but highlights its limitation in harmonic adjustments. 
@@ -511,7 +510,7 @@ The three chirplet scenarios show perfect matching between both PP-Loss and hear
 
 In 5 out of the 7 scenarios, the PP-Loss and Hearing tests had identical first rank ratings. This shows that a well designed and justified PP-Loss could be utilized in automated OOD experiments. 
 
-Moderate to strong correlation was observed between the listeners' likert scores, using speraman's rank correlation test~\cite{spearman1987proof}. This strengthens our confidence in using human assigned scores as the ground truth. Figure~\ref{tab:listener_correlation} shows the individual and overall $\rho$ and p-values.
+Using Spearman's rank correlation test~\cite{spearman1987proof}, moderate correlation values were was observed overall between the listeners' likert scores. This strengthens our confidence in using human assigned scores as the ground truth, although it is understandable lower than correlations reported in the in-domain setting~\cite{salimi2025evaluating}. Figure~\ref{tab:listener_correlation} shows the individual and overall $\rho$ and p-values.
 
 \begin{table}[t]
 \centering
@@ -539,7 +538,18 @@ Chirp: normal                    & 0.643 & $4.85\times10^{-20}$ \\
 
 
 
-\section{Conclusion}
+\section{Conclusion, Limitations, and Future Work}
+
+\textbf{Summary:} This work investigated whether the synthesis-dependent behavior of loss functions, previously observed in in-domain sound-matching, persists under out-of-domain conditions. Across seven OOD and in-domain scenarios involving band-pass filtering, amplitude modulation, and pitch-bending synthesizers, we evaluated four differentiable loss functions: SIMSE Spec, L1 Spec, JTFS, and DTW Envelope. Our results confirm that no single loss function dominates across all scenarios, and that effectiveness remains tightly coupled to the method of synthesis and the nature of the target sound—even when the synthesizer cannot fully replicate the target.
+
+Specifically, SIMSE Spec proved most effective for band-pass matching, consistent with the visibility of filter cutoffs in spectral representations. DTW Envelope excelled in amplitude-modulation scenarios where envelope dynamics were the primary feature of interest, and also outperformed JTFS in the pulsating pitch-bend scenario—further challenging claims of JTFS as a universal mesostructure loss. JTFS, in turn, remained the strongest performer for chirplet-like pitch trajectories, confirming prior findings by Vahidi et al.~\cite{vahidi2023mesostructures} in both OOD and in-domain settings.
+
+We proposed Partial Parameter Loss (PPL) as an automated evaluation metric for OOD settings where full parameter correspondence does not exist. PPL agreed with blinded human listening tests on the top-ranked loss function in five of seven scenarios. While this level of agreement is encouraging, it is not sufficient to replace listening tests entirely—particularly in scenarios where PPL captures only a subset of perceptually relevant features, as seen in the AM experiments where DTW Envelope recovered the correct modulation rate but listeners penalized mismatched harmonics. We also observed lower inter-rater agreement in OOD evaluations compared to previous in-domain results, reflecting the inherent subjectivity of judging similarity when exact replication is impossible.
+
+\textbf{Weaknesses:} Several limitations should be noted. The scenarios here, while carefully designed, use relatively simple synthesizer pairs with few parameters. Whether PPL remains a useful metric for more complex synthesizers with higher-dimensional parameter spaces is an open question. The definition of "critical parameters" in PPL requires domain knowledge and judgment, introducing a degree of subjectivity into what is otherwise an automatic measure. Additionally, all target sounds in this work originate from other synthesizers rather than from real-world recordings, which would introduce further challenges such as noise, room acoustics, and timbral complexity beyond the reach of simple DSP models.
+
+\textbf{Future Work:} Sound-matching is not practical until successful OOD evaluations with pre-recorded targets (regardless of source) is achieved, where neither parameter ground truth nor structural correspondence exists. Multi-objective loss combinations that leverage the complementary strengths observed here—for example, pairing DTW Envelope with a spectrogram loss to capture both envelope dynamics and harmonic content—are a promising direction. The periodic and multi-modal nature of loss landscapes in sound-matching also remains an open problem; adaptive optimizers or reinforcement learning approaches may offer improvements over fixed-rate gradient descent. Finally, expanding the set of differentiable loss functions to target other perceptual dimensions—such as roughness, brightness, or spatial characteristics—could bring sound-matching closer to the nuanced judgments and preferences of sound-designers.
+
 \clearpage
 \bibliographystyle{alpha}
 
