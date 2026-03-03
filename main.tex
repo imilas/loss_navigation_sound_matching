@@ -358,7 +358,7 @@ For each performance measure and scenario, nonparametric Scott-Knott procedure (
  
  Here we use \BPSaw as the target synthesizer, and \BPNoise as the imitator. Since the filter cutoffs are the only shared parameters and are the perceptually dominant feature in both synthesizers, PPL is defined as the L2 distance between the normalized lp\_cut and hp\_cut values.
 
-\textbf{Results.} Like previous work, hearing tests reveal the spectrogram based losses as appropriate for band-passing~\cite{salimi2025evaluating}. As shown in Table~\ref{tab:scenario_ranks}, both hearing tests and PP-Loss determine \SIMSESpec to be the best performing loss function for the band-passing scenario. However, there are differences in how ranks 2-4 were assigned. 
+\noindent \textbf{Results.} Like previous work, hearing tests reveal the spectrogram based losses as appropriate for band-passing~\cite{salimi2025evaluating}. As shown in Table~\ref{tab:scenario_ranks}, both hearing tests and PP-Loss determine \SIMSESpec to be the best performing loss function for the band-passing scenario. However, there are differences in how ranks 2-4 were assigned. 
  
 \begin{table*}[t]
 \centering
@@ -495,7 +495,7 @@ In these scenarios, the \texttt{amp} values can match, but the frequency content
 \label{sec:am_sound_matching_nonoverlapping}
 \textbf{Setup.} For this scenario, we choose two instances of \FMModvtwo, with the carriers having non-overlapping frequency ranges of 30-250 Hz for the target synth and 1000-5000 Hz for the imitator. Here, the carrier is a sine oscillator, therefore the clashing of higher harmonics can be factored out as a source of confusion in the loss function landscape. Since there is no overlap in the carrier frequency ranges, the tone of the imitator and target synth can never match, making this an OOD scenario. 
 
-\textbf{Results.}
+\noindent \textbf{Results.}
 \DTWEnv Envelope is the best performer under both PPL and hearing tests~\ref{tab:scenario_ranks}. This is consistent with \DTWEnv's focus on amplitude envelope dynamics: since the carrier frequencies cannot match, the modulation rate is the only transferable feature, and \DTWEnv captures it most effectively. \JTFS is the worst performer in both measures, suggesting that its spectro-temporal representation is confounded by the large frequency gap between target and imitator.
 
 
@@ -504,14 +504,14 @@ In these scenarios, the \texttt{amp} values can match, but the frequency content
 \label{sec:am_sinetarget_sawimitate}
 \textbf{Setup.} In this scenario, we select \FMModvtwo as the target, and \FMMod as the imitator, both with \texttt{amp} ranges of 1-15 Hz and \texttt{car} range of 30-5000 Hz. Unlike the non-overlapping scenario, the carrier frequencies can overlap numerically. However, the harmonic content differs: a sine carrier produces a pure tone, while a saw carrier produces a harmonic series.
 
-\textbf{Results.} \DTWEnv again achieves the best PPL score, confirming its ability to recover the correct modulation rate. However, hearing tests favor the spectrogram-based losses (\SIMSESpec ranks first). The likely explanation is that \DTWEnv  matches the amplitude modulation accurately but ignores harmonic content, while spectrogram losses produce outputs with better overall timbral similarity at the cost of some envelope accuracy. This scenario highlights the divergence between PPL (which measures a specific parameter) and holistic perceptual judgment.
+\noindent \textbf{Results.} \DTWEnv again achieves the best PPL score, confirming its ability to recover the correct modulation rate. However, hearing tests favor the spectrogram-based losses (\SIMSESpec ranks first). The likely explanation is that \DTWEnv  matches the amplitude modulation accurately but ignores harmonic content, while spectrogram losses produce outputs with better overall timbral similarity at the cost of some envelope accuracy. This scenario highlights the divergence between PPL (which measures a specific parameter) and holistic perceptual judgment.
 
 
 \subsubsection{Saw Target, Sine Imitator}
 \label{sec:am_sawtarget_sineimitate}
 \textbf{Setup.} This scenario uses \FMMod as the target and \FMModvtwo as the imitator. The parameter ranges remaining unchanged. 
 
-\textbf{Results.}  The pattern is similar to the previous scenario, futher supporting the interpretations that \DTWEnv excels at amplitude modulation, but produces outputs that listeners rate lower when harmonic content is mismatched.
+\noindent \textbf{Results.}  The pattern is similar to the previous scenario, futher supporting the interpretations that \DTWEnv excels at amplitude modulation, but produces outputs that listeners rate lower when harmonic content is mismatched.
 
 
 \subsection{Pitch-Bending}
@@ -527,20 +527,20 @@ The base synthesizer (Listing~\ref{lst:pitchbendup}) produces a sine wave at a s
 \label{sec:delayed_chirplet}
 \textbf{Setup.} The program here is a sine wave with a steady starting pitch for a random amount of time; after a time delay of 5000-30000 samples, an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds, making this an OOD scenario. Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset, using L2 distance. 
 
-\textbf{Results.} This scenario shows identical ratings between both PPL and hearing tests. Both measures show \JTFS as the best performing loss. This is consistent with the findings by Vahidi et al. which showed \JTFS to be agnostic to slight perturbations in the frequency and time scale when matching chirplet synthesizers~\cite{vahidi2023mesostructures}.
+\noindent \textbf{Results.} This scenario shows identical ratings between both PPL and hearing tests. Both measures show \JTFS as the best performing loss. This is consistent with the findings by Vahidi et al. which showed \JTFS to be agnostic to slight perturbations in the frequency and time scale when matching chirplet synthesizers~\cite{vahidi2023mesostructures}.
 
 
 \subsubsection{No-Delay Pitch-Bending}
 \label{sec:no_delayed_chirplet}
 \textbf{Setup.} As a follow-up experiment, we conducted the \textit{in-domain} comparison of pitch-bending synthesizers \textit{without} delay. This scenario would be a close replication of the original in-domain experiments by Vahidi \textit{et. al.}. In other words, it is identical to the delayed pitch-bending experiment but the delay variable $\delta$ is always set to 0 (see Listing~\ref{lst:pitchbendup}).  
 
-\textbf{Results.} \JTFS remains the best performer under both PPL and hearing tests, consistent with the OOD delayed scenario and with prior work. 
+\noindent \textbf{Results.} \JTFS remains the best performer under both PPL and hearing tests, consistent with the OOD delayed scenario and with prior work. 
 
 \subsubsection{Pulsating Pitch-Bending}
 \label{sec:pulsating_chirplet}
 \textbf{Setup.} This scenario modifies the pitch-bending synthesizer to include a pulsating component (Listing~\ref{lst:pitchbendup_pulse}). The frequency increases overall but also oscillates up and down within a narrow range, driven by a saw-wave LFO with frequency \texttt{pulse\_rate}. The search parameters are \texttt{increase\_speed} and \texttt{pulse\_rate}. This is an in-domain experiment included to test whether \JTFS's advantage extends to pitch trajectories with added modulation — a feature that falls within the definition of ``mesostructure'' as described by Vahidi et al~\cite{vahidi2023mesostructures}. PPL is defined as the L2 distance between the normalized \texttt{increase\_speed} and \texttt{pulse\_rate} parameters.
 
-\textbf{Results.} \DTWEnv ranks first under both PPL and hearing tests, displacing \JTFS from the top rank it held in the other two chirplet scenarios. \JTFS drops to second place. This result is significant because the pulsating pitch trajectory is falls under the definition of mesostructure and slight modification to the original chirplet experiments. This suggests that \JTFS's strength is more narrowly scoped than the ``mesostructure'' framing implies.
+\noindent \textbf{Results.} \DTWEnv ranks first under both PPL and hearing tests, displacing \JTFS from the top rank it held in the other two chirplet scenarios. \JTFS drops to second place. This result is significant because the pulsating pitch trajectory is falls under the definition of mesostructure and slight modification to the original chirplet experiments. This suggests that \JTFS's strength is more narrowly scoped than the ``mesostructure'' framing implies.
 
 \begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp program. when an instance of the synthezier is created, $\delta$ is randomly assigned a value between 5000-30000 samples (Delayed Pitch-bend) or set to 0 (No-delay Pitch-bend)}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
 import("stdfaust.lib");
