@@ -477,49 +477,70 @@ process = sineOsc(amp)*sineOsc(car);
 
 
 \label{sec:am_sound_matching}
-We test three OOD scenarios for AM-Synthesizers. \FMMod and \FMModvtwo as described in Listings~\ref{lst:program3} and~\ref{lst:program3_v2} are the basis for the three variations of this scenario. \FMMod generates a sound by modifying the amplitude of a saw oscillator with a sinusoidal LFO. \FMModvtwo is a modification which uses sine oscillators for both the carrier and the modulator. In this section, we will refer to the LFO frequency as \texttt{amp} and carrier frequency as \texttt{car}. The value of \texttt{amp} shapes the amplitude of the sound (or the wobbling effect), and \texttt{car} determines the frequency of the sound.
+ This group of scenarios contains three OOD scenarios built from two AM synthesizers.  \FMMod and \FMModvtwo as described in Listings~\ref{lst:program3} and~\ref{lst:program3_v2} are the basis for the three variations of this scenario. \FMMod generates a sound by modifying the amplitude of a saw oscillator with a sinusoidal LFO. \FMModvtwo uses sine oscillators for both the carrier and the modulator. In this section, we will refer to the LFO frequency as \texttt{amp} and carrier frequency as \texttt{car}. The value of \texttt{amp} shapes the amplitude of the sound (or the wobbling effect), and \texttt{car} determines the frequency (or pitch) of the sound.
 
 In these scenarios, the \texttt{amp} values can match, but the frequency content cannot. In version 1 (Non-Overlapping Frequencies), the range of available frequencies are different. In version 2 (Sine Target, Saw Imitator), the imitator can only make sine tones while the target can only makes saw waves, and vice versa for scenario 3 (Saw Target, Sine Imitator). A question we have to consider is: how would we match the sounds manually? Here we see why OOD experiments are difficult, as describing sound similarity can be quite subjective.
 
-If the carrier frequencies could not possibly match (as in scenario 1), the best method for matching the carrier frequencies is not clear. Although the distances between the frequencies can be reduced, there will always be a gap. What's more, matching musical notes is not simply a matter of frequency values. For example, let's consider the commonly used equal temperament tuning system~\cite{sethares2005tuning}, where the A4 note is usually associated with 440 Hz. In this system, if the target synth is producing a frequency at 440 Hz, and the imitator can only produce values below 400 Hz, then the correct objective for the frequency is dependent on the sound designers needs. 400Hz might be the best frequency parameter, since it is as close as we can get to 440Hz; or perhaps the value of 220 Hz (corresponding to A3) is a better match than the value of 392 Hz (corresponding to G4). In general, considering the commonly used logarithmic scaling of musical notes, it can be argued that the best matches for any frequency $f$ are $f*2^{n}$, where n is any integer~\cite{young1939terminology}. \todo{(does this tie back into the hypothesis that the sinusoidal nature of sound can cause non-smooth loss functions)}
 
-We ignore the frequency parameter for the PPL definition, and take the proximity of \texttt{amp} values as a reasonable measure of success: not only can the \texttt{amp} values between the imitator and target have the same range, but also the transfer of the amplitude changes from one sample to another is a common sound-design task \cite{engel2020ddsp}. To measure sound matching success, the PPL is set to the squared difference between the amp values in $\theta_t$ and the output parameters.
+\textbf{PPL definition for all AM scenarios.} Across all three AM variants, PPL is defined as the squared difference between the \texttt{amp} values of the target and imitator. The \texttt{amp}  parameter is meaningful across synthesizers because the amplitude modulation rate transfers perceptually regardless of the carrier waveform or frequency range. 
+
+\textbf{Why exclude the carrier frequency?} In OOD settings where the carrier frequencies cannot match exactly, the ``correct'' frequency is ambiguous. Consider a target producing 440 Hz (A4 in equal temperament) and an imitator limited to frequencies below 400 Hz. The closest numerical value is 400 Hz, but musically, 220 Hz (A3, one octave below) may be a better perceptual match than 392 Hz (G4, a different note). More generally, given the logarithmic nature of pitch perception, the best frequency matches for a given frequency $f$ are arguably $f \cdot 2^n$ for integer $n$~\cite{young1939terminology,sethares2005tuning}. Because there is no single correct definition of carrier frequency similarity in the OOD setting, we exclude it from PPL and focus on the amplitude modulation rate, which is both unambiguous and a common transfer target in practical sound design~\cite{engel2020ddsp}.
+
+
+% If the carrier frequencies could not possibly match (as in scenario 1), the best method for matching the carrier frequencies is not clear. Although the distances between the frequencies can be reduced, there will always be a gap. What's more, matching musical notes is not simply a matter of frequency values. For example, let's consider the commonly used equal temperament tuning system~\cite{sethares2005tuning}, where the A4 note is usually associated with 440 Hz. In this system, if the target synth is producing a frequency at 440 Hz, and the imitator can only produce values below 400 Hz, then the correct objective for the frequency is dependent on the sound designers needs. 400Hz might be the best frequency parameter, since it is as close as we can get to 440Hz; or perhaps the value of 220 Hz (corresponding to A3) is a better match than the value of 392 Hz (corresponding to G4). In general, considering the commonly used logarithmic scaling of musical notes, it can be argued that the best matches for any frequency $f$ are $f*2^{n}$, where n is any integer~\cite{young1939terminology}. \todo{(does this tie back into the hypothesis that the sinusoidal nature of sound can cause non-smooth loss functions)}
+
+% We ignore the frequency parameter for the PPL definition, and take the proximity of \texttt{amp} values as a reasonable measure of success: not only can the \texttt{amp} values between the imitator and target have the same range, but also the transfer of the amplitude changes from one sample to another is a common sound-design task \cite{engel2020ddsp}. To measure sound matching success, the PPL is set to the squared difference between the amp values in $\theta_t$ and the output parameters.
 
 \subsubsection{Non-Overlapping frequencies}
 \label{sec:am_sound_matching_nonoverlapping}
-For this scenario, we choose two instances of \FMModvtwo, with the carriers having non-overlapping frequency ranges of 30-250 Hz for the target synth and 1000-5000 Hz for the imitator. Here, the carrier is a sine oscillator, therefore the clashing of higher harmonics can be factored out as a source of confusion in the loss function landscape. Since there is no overlap in the carrier frequency ranges, the tone of the imitator and target synth can never match, making this a simple out-of-domain scenario. As shown in Table~\ref{tab:scenario_ranks}, \DTWEnv outperforms other loss functions in both PPL and hearing tests, and \JTFS is the worst performer.
+\textbf{Setup.} For this scenario, we choose two instances of \FMModvtwo, with the carriers having non-overlapping frequency ranges of 30-250 Hz for the target synth and 1000-5000 Hz for the imitator. Here, the carrier is a sine oscillator, therefore the clashing of higher harmonics can be factored out as a source of confusion in the loss function landscape. Since there is no overlap in the carrier frequency ranges, the tone of the imitator and target synth can never match, making this an OOD scenario. 
+
+\textbf{Results.}
+\DTWEnv Envelope is the best performer under both PPL and hearing tests~\ref{tab:scenario_ranks}. This is consistent with \DTWEnv's focus on amplitude envelope dynamics: since the carrier frequencies cannot match, the modulation rate is the only transferable feature, and \DTWEnv captures it most effectively. \JTFS is the worst performer in both measures, suggesting that its spectro-temporal representation is confounded by the large frequency gap between target and imitator.
+
+
 
 \subsubsection{Sine Target, Saw Imitator}
 \label{sec:am_sinetarget_sawimitate}
-In this scenario, we select \FMModvtwo as the target, and \FMMod as the imitator, both with \texttt{amp} ranges of 1-15 Hz and \texttt{car} range of 30-5000 Hz. Here we again see that the \DTWEnv function objectively finds the closest amplitude value, yet the hearing tests align with the spectrogram based losses. A likely explanation here is that \DTWEnv clearly excels at finding the correct amp parameter, it ignores frequency content, which leads to low rankings assigned by manual listeners. 
+\textbf{Setup.} In this scenario, we select \FMModvtwo as the target, and \FMMod as the imitator, both with \texttt{amp} ranges of 1-15 Hz and \texttt{car} range of 30-5000 Hz. Unlike the non-overlapping scenario, the carrier frequencies can overlap numerically. However, the harmonic content differs: a sine carrier produces a pure tone, while a saw carrier produces a harmonic series.
+
+\textbf{Results.} \DTWEnv again achieves the best PPL score, confirming its ability to recover the correct modulation rate. However, hearing tests favor the spectrogram-based losses (\SIMSESpec ranks first). The likely explanation is that \DTWEnv  matches the amplitude modulation accurately but ignores harmonic content, while spectrogram losses produce outputs with better overall timbral similarity at the cost of some envelope accuracy. This scenario highlights the divergence between PPL (which measures a specific parameter) and holistic perceptual judgment.
 
 
 \subsubsection{Saw Target, Sine Imitator}
 \label{sec:am_sawtarget_sineimitate}
-This scenario uses \FMMod as the target and \FMModvtwo as the imitator, we also see here that \DTWEnv is the best performer according to PPL, but manual raters are partial to the spectrogram based losses,  likely due to reasons discussed in the previous sub-scenario.
+\textbf{Setup.} This scenario uses \FMMod as the target and \FMModvtwo as the imitator. The parameter ranges remaining unchanged. 
 
-% \input{extra_figures/am_scenarios}
-% \input{extra_figures/pitch_bend_scenarios}
+\textbf{Results.}  The pattern is similar to the previous scenario, futher supporting the interpretations that \DTWEnv excels at amplitude modulation, but produces outputs that listeners rate lower when harmonic content is mismatched.
+
+
 \subsection{Pitch-Bending}
-Vahidi et al. showed that \JTFS out-performs MSS in in-domain sound-matching of chirplet synthesizers~\cite{vahidi2023mesostructures}. Chirplets are tones which increase in frequency at an exponential rate, the frequency of the tone and the rate of increase being the two major parameters. Here we test three different scenarios with pitch-bending synthesizers that resemble chirplets. The main scenario (Delayed Pitch-Bending) is OOD, where the chirplets have a randomly assigned built-in delay offset. The second scenario is in-domain, where we eliminate the random delay to see the effect on performance. We introduce a third scenario (pulsating Pitch-bend) that is also in-domain, but the chirplet frequency does not strictly increase linearly on a log-scale. 
+\todo{Maybe justify why chirplets are important}\\
+\label{sec:chirplet_scenarios}
+This group tests three scenarios involving synthesizers that produce tones with increasing pitch, resembling chirplets. The main scenario (Section 4.3.1) is OOD, while the remaining two (Sections 4.3.2 and 4.3.3) are in-domain variants included for comparison with prior work by Vahidi et al.\cite{vahidi2023mesostructures}. 
+
+The base synthesizer (Listing~\ref{lst:pitchbendup}) produces a sine wave at a starting pitch that remains steady for a delay period, after which an exponential upward pitch bend is applied. The search parameters are the starting pitch (30–500 Hz) and the rate of pitch increase (1–20 samples per time step).
+
 
 
 \subsubsection{Delayed Pitch-Bending}
-The program here is a sine wave with a steady starting pitch for a random amount of time; after a time delay of 5000-30000 samples, an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds, making this an out-of-domain example.
+\label{sec:delayed_chirplet}
+\textbf{Setup.} The program here is a sine wave with a steady starting pitch for a random amount of time; after a time delay of 5000-30000 samples, an exponential upward pitch bend is applied to the starting pitch. The search parameters here are the starting pitch (30-500 Hz) and the rate at which the power of the exponent increases (1-20 samples at every time step). The time-delay for the pitch-bending onset is selected randomly for each experiment, so it is very unlikely that the imitator would be able to replicate the target's sounds, making this an OOD scenario. Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset, using L2 distance. 
 
-This scenario shows identical ratings between both PPL and hearing tests. Both measures show \JTFS as the best performing loss, which is consistent with the findings of Vahidi et al. which showed \JTFS to be agnostic to slight perturbations in the frequency and time scale, at least when matching chirplet synthesizers\cite{vahidi2023mesostructures}.
+\textbf{Results.} This scenario shows identical ratings between both PPL and hearing tests. Both measures show \JTFS as the best performing loss. This is consistent with the findings by Vahidi et al. which showed \JTFS to be agnostic to slight perturbations in the frequency and time scale when matching chirplet synthesizers~\cite{vahidi2023mesostructures}.
+
 
 \subsubsection{No-Delay Pitch-Bending}
-As a follow-up experiment, we conducted the \textit{in-domain} comparison of pitch-bending synthesizers \textit{without} delay. This scenario would be a close replication of the original in-domain experiments by Vahidi \textit{et. al.}. In other words, it is identical to the delayed pitch-bending experiment but the delay variable $\delta$ is always set to 0 (see Listing~\ref{lst:pitchbendup}). As expected, \JTFS remains the best performer according to PPL and hearing tests.
+\label{sec:no_delayed_chirplet}
+\textbf{Setup.} As a follow-up experiment, we conducted the \textit{in-domain} comparison of pitch-bending synthesizers \textit{without} delay. This scenario would be a close replication of the original in-domain experiments by Vahidi \textit{et. al.}. In other words, it is identical to the delayed pitch-bending experiment but the delay variable $\delta$ is always set to 0 (see Listing~\ref{lst:pitchbendup}).  
+
+\textbf{Results.} \JTFS remains the best performer under both PPL and hearing tests, consistent with the OOD delayed scenario and with prior work. 
 
 \subsubsection{Pulsating Pitch-Bending}
-Vahidi et al. contended that \JTFS is the appropriate loss function for the capture of ``mesostructures''. Previous work has shown that this is not always the case with in-domain scenarios~\cite{salimi2025evaluating}. As shown in Listing~\ref{lst:pitchbendup_pulse}, this scenario adds a pulse to the pitch-bending synthesizer, such that the frequency is shifted upwards overall, but also pulsing up and down within a narrow range. This characteristic is fully within the definition of ``mesostructure'', yet \JTFS is outperfomed by \DTWEnv according to PPL and hearing tests. 
+\label{sec:pulsating_chirplet}
+\textbf{Setup.} This scenario modifies the pitch-bending synthesizer to include a pulsating component (Listing~\ref{lst:pitchbendup_pulse}). The frequency increases overall but also oscillates up and down within a narrow range, driven by a saw-wave LFO with frequency \texttt{pulse\_rate}. The search parameters are \texttt{increase\_speed} and \texttt{pulse\_rate}. This is an in-domain experiment included to test whether \JTFS's advantage extends to pitch trajectories with added modulation — a feature that falls within the definition of ``mesostructure'' as described by Vahidi et al~\cite{vahidi2023mesostructures}. PPL is defined as the L2 distance between the normalized \texttt{increase\_speed} and \texttt{pulse\_rate} parameters.
 
-% Another conclusion here is that all loss function perform much worse on the proximity scale
-
-Here, we can define success with P-Loss, that is, how well the \texttt{increase\_speed} and \texttt{starting\_pitch} parameters are approximated despite the delay in the pitch-bending onset. Figure~\ref{fig:npsk_pitch_bends} the right side shows that \JTFS is the best performing loss function, which is consistent with the previous findings by Vahidi \textit{et al.}~\cite{vahidi2023mesostructures}. 
-
-
+\textbf{Results.} \DTWEnv ranks first under both PPL and hearing tests, displacing \JTFS from the top rank it held in the other two chirplet scenarios. \JTFS drops to second place. This result is significant because the pulsating pitch trajectory is falls under the definition of mesostructure and slight modification to the original chirplet experiments. This suggests that \JTFS's strength is more narrowly scoped than the ``mesostructure'' framing implies.
 
 \begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp program. when an instance of the synthezier is created, $\delta$ is randomly assigned a value between 5000-30000 samples (Delayed Pitch-bend) or set to 0 (No-delay Pitch-bend)}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
 import("stdfaust.lib");
@@ -540,20 +561,60 @@ sawOsc(f) = +(f/ma.SR) ~ ma.frac : +(0.5);
 increasing_pitch(rate) = _ ~ +(rate/ma.SR) : exp;
 process = sineOsc(30 + increasing_pitch(increase_speed) + sawOsc(pulse_rate) * 526);
 \end{lstlisting}
-% \section{Gradients}
-% Different forms of gradient analysis has been conducted in previous works~\cite{masuda2023improving,turian2020sorry,vahidi2023mesostructures}.
 
 
-\section{Discussion and Key Findings}
-In the BP scenario, we see that \SIMSESpec is the best performer, which is consistent with previous findings, and highlights \SIMSESpec as an alternative to the commonly used application of L1 and L2 distances to spectrograms~\cite{turian2020sorry}.
 
-AM-Synthesis results are chaotic. In the non-overlapping frequencies scenario, \DTWEnv is the best performer due to its sole focus on changes in sound-envelope. However, when harmonics imperfectively overlap in the sine-to-saw and saw-to-sine scenarios, \DTWEnv outperforms other losses in finding the closest amplitude modulation frequency, but hearing tests show a prefernce for spectrogram based losses. This further solidifies the utility of DTW bases losses in sound-design, but highlights its limitation in harmonic adjustments. 
+\subsection{Summary of Results}
 
-The three chirplet scenarios show perfect matching between both PP-Loss and hearing tests. In the delayed and no-delay matching scenarios which resemble previous work by Vahidi \textit{et al.} confirm the utility of \JTFS in chirplet matching. However, we see that a slight variation on this setup as shown by the pulsating chirplet scenario favors \DTWEnv. This further questions the suitability of \JTFS as a loss function for ``mesostructures'' as a whole~\cite{vahidi2023mesostructures}.
+We note several patterns in results as shown in Table~\ref{tab:scenario_ranks}, which presents the full ranking results across all seven scenarios.
 
-In 5 out of the 7 scenarios, the PP-Loss and Hearing tests had identical first rank ratings. This shows that a well designed and justified PP-Loss could be utilized in automated OOD experiments. 
+First, no single loss function dominates. \SIMSESpec is the top performer for band-pass matching, \DTWEnv for amplitude modulation and pulsating pitch-bending, and \JTFS for chirplet-like pitch trajectories. 
 
-Using Spearman's rank correlation test~\cite{spearman1987proof}, moderate correlation values were was observed overall between the listeners' likert scores. This strengthens our confidence in using human assigned scores as the ground truth, although it is understandable lower than correlations reported in the in-domain setting~\cite{salimi2025evaluating}. Figure~\ref{tab:listener_correlation} shows the individual and overall $\rho$ and p-values.
+Second, the agreement between PPL and hearing tests is strong but imperfect. The two measures assign identical top ranks in five of seven scenarios. The two disagreements occur in the AM scenarios with overlapping carrier frequencies (Sections~\ref{sec:am_sinetarget_sawimitate} and~\ref{sec:am_sawtarget_sineimitate}), where PPL favors DTW Envelope for its accurate recovery of the modulation rate while listeners favor spectrogram-based losses for their better overall timbral similarity.
+
+Third, the OOD results are consistent with in-domain findings of previous work~\cite{salimi2025evaluating}: spectrogram losses excel at filtering tasks, DTW Envelope excels at amplitude modulation tasks, and JTFS excels at pitch trajectory tasks. The synthesis-dependent behavior of loss functions is not an artifact of the in-domain setting and persists when the target sound is unreachable.
+
+\LoneSpec, despite being the most commonly used spectrogram loss in the literature, does not rank first in any scenario under hearing tests. 
+
+\section{Discussion}
+
+\subsection{Synthesis-Dependent Behavior Persists in OOD Settings}
+
+The central finding of this work is that loss-function effectiveness remains synthesis-dependent under OOD conditions, paralleling the in-domain results of~\cite{salimi2025evaluating}. This answers \textbf{Q1} affirmatively.
+
+\subsection{Revisiting Claims About JTFS and Mesostructures}
+
+Vahidi et al.~\cite{vahidi2023mesostructures} positioned JTFS as a metric suited to mesostructural features. Our results partially support this claim. In chirplet scenarios involving smooth pitch evolution, JTFS is top-ranked under both PPL and listening tests, including the delayed OOD variant, indicating robustness to temporal perturbation.
+
+However, in the amplitude modulation and pulsating pitch-bend scenarios---also mesostructural in nature---\DTWEnv outperforms JTFS. This suggests that ``mesostructure'' may lack sufficient specificity to guide loss selection. A more actionable distinction is between spectro-temporal trajectory tasks (favoring \JTFS) and amplitude-modulation tasks (favoring \DTWEnv). Clarifying these boundaries may prove more useful than positioning JTFS as a broadly applicable mesostructural metric.
+
+\subsection{PPL as an Evaluation Metric}
+
+PPL demonstrates strong agreement with listening tests, achieving identical top ranks in five of seven scenarios. This supports its utility as an automated metric in OOD sound-matching. However, divergence in the sine-to-saw and saw-to-sine AM scenarios highlights its limitations.
+
+In these cases, \DTWEnv recovered modulation rates effectively, yielding strong PPL scores, while listeners preferred spectrogram-based losses due to closer harmonic resemblance. PPL is therefore most reliable when critical parameters correspond to perceptually dominant features. Careful selection of critical parameters based on domain knowledge is thus essential for meaningful OOD evaluation.
+
+\subsection{Inter-Rater Correlation Under Domain Shift}
+
+Inter-rater correlation decreased from $\rho = 0.86$ in-domain~\cite{salimi2025evaluating}
+to $\rho = 0.59$ in OOD settings, with per-scenario values ranging from $\rho = 0.36$ to $\rho = 0.67$. This decline reflects the structural ambiguity of OOD tasks. Without exact replication, listeners must weigh competing perceptual features, leading to variability in similarity judgments. Higher correlation occurs in scenarios with a single dominant perceptual feature (e.g., band-pass and chirplet matching), whereas AM scenarios with overlapping perceptual cues produce lower correlations. \todo{what's the takeaway here? sound is subjective?}
+
+\subsection{Implications for Practical Sound-Matching}
+
+These findings reinforce that no universal best loss function exists for sound-matching. Loss selection should be informed by the perceptual dimension most central to the task. For the tasks presented here, these are spectrogram-based losses for filtering, \DTWEnv for modulation patterns, and \JTFS for smooth pitch trajectories.
+
+The consistent performance of \SIMSESpec in filtering tasks suggests that scale-invariant spectral comparison merits broader adoption. Likewise, the success of \DTWEnv demonstrates that dimension-specific losses can outperform general-purpose metrics. Future work should explore additional specialized similarity measures targeting perceptually meaningful attributes in OOD contexts.
+
+% \section{Discussion and Key Findings}
+% In the BP scenario, we see that \SIMSESpec is the best performer, which is consistent with previous findings, and highlights \SIMSESpec as an alternative to the commonly used application of L1 and L2 distances to spectrograms~\cite{turian2020sorry}.
+
+% AM-Synthesis results are chaotic. In the non-overlapping frequencies scenario, \DTWEnv is the best performer due to its sole focus on changes in sound-envelope. However, when harmonics imperfectively overlap in the sine-to-saw and saw-to-sine scenarios, \DTWEnv outperforms other losses in finding the closest amplitude modulation frequency, but hearing tests show a prefernce for spectrogram based losses. This further solidifies the utility of DTW bases losses in sound-design, but highlights its limitation in harmonic adjustments. 
+
+% The three chirplet scenarios show perfect matching between both PP-Loss and hearing tests. In the delayed and no-delay matching scenarios which resemble previous work by Vahidi \textit{et al.} confirm the utility of \JTFS in chirplet matching. However, we see that a slight variation on this setup as shown by the pulsating chirplet scenario favors \DTWEnv. This further questions the suitability of \JTFS as a loss function for ``mesostructures'' as a whole~\cite{vahidi2023mesostructures}.
+
+% In 5 out of the 7 scenarios, the PP-Loss and Hearing tests had identical first rank ratings. This shows that a well designed and justified PP-Loss could be utilized in automated OOD experiments. 
+
+% Using Spearman's rank correlation test~\cite{spearman1987proof}, moderate correlation values were was observed overall between the listeners' likert scores. This strengthens our confidence in using human assigned scores as the ground truth, although it is understandable lower than correlations reported in the in-domain setting~\cite{salimi2025evaluating}. Figure~\ref{tab:listener_correlation} shows the individual and overall $\rho$ and p-values.
 
 \begin{table}[t]
 \centering
@@ -574,24 +635,24 @@ Chirp: normal                    & 0.643 & $4.85\times10^{-20}$ \\
 \textbf{Overall (all scenarios)} & \textbf{0.592} & \textbf{$4.95\times10^{-107}$} \\
 \hline
 \end{tabular}
-\caption{Spearman correlation and p-values for agreement between two listeners}
+\caption{Spearman correlation and p-values for correlation between two listener scores}
 \label{tab:listener_correlation}
 \end{table}
 
 
 
 
-\section{Conclusion, Limitations, and Future Work}
+% \section{Conclusion, Limitations, and Future Work}
 
-\textbf{Summary:} This work investigated whether the synthesis-dependent behavior of loss functions, previously observed in in-domain sound-matching, persists under out-of-domain conditions. Across seven OOD and in-domain scenarios involving band-pass filtering, amplitude modulation, and pitch-bending synthesizers, we evaluated four differentiable loss functions: SIMSE Spec, L1 Spec, JTFS, and DTW Envelope. Our results confirm that no single loss function dominates across all scenarios, and that effectiveness remains tightly coupled to the method of synthesis and the nature of the target sound—even when the synthesizer cannot fully replicate the target.
+% \textbf{Summary:} This work investigated whether the synthesis-dependent behavior of loss functions, previously observed in in-domain sound-matching, persists under out-of-domain conditions. Across seven OOD and in-domain scenarios involving band-pass filtering, amplitude modulation, and pitch-bending synthesizers, we evaluated four differentiable loss functions: SIMSE Spec, L1 Spec, JTFS, and DTW Envelope. Our results confirm that no single loss function dominates across all scenarios, and that effectiveness remains tightly coupled to the method of synthesis and the nature of the target sound—even when the synthesizer cannot fully replicate the target.
 
-Specifically, SIMSE Spec proved most effective for band-pass matching, consistent with the visibility of filter cutoffs in spectral representations. DTW Envelope excelled in amplitude-modulation scenarios where envelope dynamics were the primary feature of interest, and also outperformed JTFS in the pulsating pitch-bend scenario—further challenging claims of JTFS as a universal mesostructure loss. JTFS, in turn, remained the strongest performer for chirplet-like pitch trajectories, confirming prior findings by Vahidi et al.~\cite{vahidi2023mesostructures} in both OOD and in-domain settings.
+% Specifically, SIMSE Spec proved most effective for band-pass matching, consistent with the visibility of filter cutoffs in spectral representations. DTW Envelope excelled in amplitude-modulation scenarios where envelope dynamics were the primary feature of interest, and also outperformed JTFS in the pulsating pitch-bend scenario—further challenging claims of JTFS as a universal mesostructure loss. JTFS, in turn, remained the strongest performer for chirplet-like pitch trajectories, confirming prior findings by Vahidi et al.~\cite{vahidi2023mesostructures} in both OOD and in-domain settings.
 
-We proposed Partial Parameter Loss (PPL) as an automated evaluation metric for OOD settings where full parameter correspondence does not exist. PPL agreed with blinded human listening tests on the top-ranked loss function in five of seven scenarios. While this level of agreement is encouraging, it is not sufficient to replace listening tests entirely—particularly in scenarios where PPL captures only a subset of perceptually relevant features, as seen in the AM experiments where DTW Envelope recovered the correct modulation rate but listeners penalized mismatched harmonics. We also observed lower inter-rater agreement in OOD evaluations compared to previous in-domain results, reflecting the inherent subjectivity of judging similarity when exact replication is impossible.
+% We proposed Partial Parameter Loss (PPL) as an automated evaluation metric for OOD settings where full parameter correspondence does not exist. PPL agreed with blinded human listening tests on the top-ranked loss function in five of seven scenarios. While this level of agreement is encouraging, it is not sufficient to replace listening tests entirely—particularly in scenarios where PPL captures only a subset of perceptually relevant features, as seen in the AM experiments where DTW Envelope recovered the correct modulation rate but listeners penalized mismatched harmonics. We also observed lower inter-rater agreement in OOD evaluations compared to previous in-domain results, reflecting the inherent subjectivity of judging similarity when exact replication is impossible.
 
-\textbf{Weaknesses:} Several limitations should be noted. The scenarios here, while carefully designed, use relatively simple synthesizer pairs with few parameters. Whether PPL remains a useful metric for more complex synthesizers with higher-dimensional parameter spaces is an open question. The definition of "critical parameters" in PPL requires domain knowledge and judgment, introducing a degree of subjectivity into what is otherwise an automatic measure. Additionally, all target sounds in this work originate from other synthesizers rather than from real-world recordings, which would introduce further challenges such as noise, room acoustics, and timbral complexity beyond the reach of simple DSP models.
+% \textbf{Weaknesses:} Several limitations should be noted. The scenarios here, while carefully designed, use relatively simple synthesizer pairs with few parameters. Whether PPL remains a useful metric for more complex synthesizers with higher-dimensional parameter spaces is an open question. The definition of "critical parameters" in PPL requires domain knowledge and judgment, introducing a degree of subjectivity into what is otherwise an automatic measure. Additionally, all target sounds in this work originate from other synthesizers rather than from real-world recordings, which would introduce further challenges such as noise, room acoustics, and timbral complexity beyond the reach of simple DSP models.
 
-\textbf{Future Work:} Sound-matching is not practical until successful OOD evaluations with pre-recorded targets (regardless of source) is achieved, where neither parameter ground truth nor structural correspondence exists. Multi-objective loss combinations that leverage the complementary strengths observed here—for example, pairing DTW Envelope with a spectrogram loss to capture both envelope dynamics and harmonic content—are a promising direction. The periodic and multi-modal nature of loss landscapes in sound-matching also remains an open problem; adaptive optimizers or reinforcement learning approaches may offer improvements over fixed-rate gradient descent. Finally, expanding the set of differentiable loss functions to target other perceptual dimensions—such as roughness, brightness, or spatial characteristics—could bring sound-matching closer to the nuanced judgments and preferences of sound-designers.
+% \textbf{Future Work:} Sound-matching is not practical until successful OOD evaluations with pre-recorded targets (regardless of source) is achieved, where neither parameter ground truth nor structural correspondence exists. Multi-objective loss combinations that leverage the complementary strengths observed here—for example, pairing DTW Envelope with a spectrogram loss to capture both envelope dynamics and harmonic content—are a promising direction. The periodic and multi-modal nature of loss landscapes in sound-matching also remains an open problem; adaptive optimizers or reinforcement learning approaches may offer improvements over fixed-rate gradient descent. Finally, expanding the set of differentiable loss functions to target other perceptual dimensions—such as roughness, brightness, or spatial characteristics—could bring sound-matching closer to the nuanced judgments and preferences of sound-designers.
 
 \clearpage
 \bibliographystyle{alpha}
