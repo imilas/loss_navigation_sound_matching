@@ -605,8 +605,7 @@ Chirp: normal                    & 0.643 & $4.85\times10^{-20}$ \\
 
 
 \section{Discussion}
-
-\subsection{Key Findings}
+Based on the experiment results, we can now provide some answers to our research questions.
 
 \textbf{Q1: Does Synthesis-Dependent Loss Behavior Generalize Beyond In-Domain Settings?} \\ Yes. Across all seven scenarios, the relative effectiveness of loss functions remained tied to the synthesis task rather than converging on a single best performer. \SIMSESpec{} dominated band-pass filtering, \DTWEnv{} dominated amplitude modulation, and \JTFS{} dominated smooth pitch trajectories---the same pattern observed in-domain~\cite{salimi2025evaluating}.
 
@@ -623,6 +622,7 @@ PPL agreed with hearing tests on the top-ranked loss in five of seven scenarios.
 Divergence occurs when perceptually important features fall outside the measured parameters. For example, in the AM scenarios with overlapping carrier frequencies, PPL favored \DTWEnv{} for accurately recovering modulation rate, while listeners preferred spectrogram-based losses that better preserved harmonic content. Thus, PPL can provide a useful automated metric for OOD sound-matching when its critical parameters correspond to perceptually dominant features; the selection of such critical parameters requires domain knowledge, where the sound-designer knows what characteristics they are looking for, and which parameters correspond to these characteristics.
 
 While PPL does not replace listening tests, it fills a gap in future OOD evaluations by offering a scalable parameter-based metric that can complement listening studies in large-scale benchmarking.
+
 
 \section{Conclusion, Limitations, and Future Work}
 
