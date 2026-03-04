@@ -39,10 +39,10 @@
 \newcommand{\highlight}[1]{\textcolor[RGB]{00,150,00}{#1}}
 \newcommand{\todo}[1]{\textcolor{red}{#1}}
 
-\newcommand{\SIMSESpec}{\texttt{SIMSE\_Spec}\xspace}
-\newcommand{\LoneSpec}{\texttt{L1\_Spec}\xspace}
+\newcommand{\SIMSESpec}{\texttt{SIMSE\_\allowbreak Spec}\xspace}
+\newcommand{\LoneSpec}{\texttt{L1\_\allowbreak Spec}\xspace}
 \newcommand{\JTFS}{\texttt{JTFS}\xspace}
-\newcommand{\DTWEnv}{\texttt{DTW\_Envelope}\xspace}
+\newcommand{\DTWEnv}{\texttt{DTW\_\allowbreak Envelope}\xspace}
 \newcommand{\OutDomain}{\textbf{Out-of-Domain Generation}\xspace}
 \newcommand{\LossSelect}{\textbf{Loss Selection}}
 \newcommand{\SynthSelect}{\textbf{Synthesis Selection}}
@@ -564,46 +564,9 @@ process = sineOsc(30 + increasing_pitch(increase_speed) + sawOsc(pulse_rate) * 5
 
 
 
-\subsection{Summary of Results}
 
-We note several patterns in results as shown in Table~\ref{tab:scenario_ranks}, which presents the full ranking results across all seven scenarios.
 
-First, no single loss function dominates. \SIMSESpec is the top performer for band-pass matching, \DTWEnv for amplitude modulation and pulsating pitch-bending, and \JTFS for chirplet-like pitch trajectories. 
 
-Second, the agreement between PPL and hearing tests is strong but imperfect. The two measures assign identical top ranks in five of seven scenarios. The two disagreements occur in the AM scenarios with overlapping carrier frequencies (Sections~\ref{sec:am_sinetarget_sawimitate} and~\ref{sec:am_sawtarget_sineimitate}), where PPL favors DTW Envelope for its accurate recovery of the modulation rate while listeners favor spectrogram-based losses for their better overall timbral similarity.
-
-Third, the OOD results are consistent with in-domain findings of previous work~\cite{salimi2025evaluating}: spectrogram losses excel at filtering tasks, DTW Envelope excels at amplitude modulation tasks, and JTFS excels at pitch trajectory tasks. The synthesis-dependent behavior of loss functions is not an artifact of the in-domain setting and persists when the target sound is unreachable.
-
-\LoneSpec, despite being the most commonly used spectrogram loss in the literature, does not rank first in any scenario under hearing tests. 
-
-\section{Discussion}
-
-\subsection{Synthesis-Dependent Behavior Persists in OOD Settings}
-
-The central finding of this work is that loss-function effectiveness remains synthesis-dependent under OOD conditions, paralleling the in-domain results of~\cite{salimi2025evaluating}. This answers \textbf{Q1} affirmatively.
-
-\subsection{Revisiting Claims About JTFS and Mesostructures}
-
-Vahidi et al.~\cite{vahidi2023mesostructures} positioned JTFS as a metric suited to mesostructural features. Our results partially support this claim. In chirplet scenarios involving smooth pitch evolution, JTFS is top-ranked under both PPL and listening tests, including the delayed OOD variant, indicating robustness to temporal perturbation.
-
-However, in the amplitude modulation and pulsating pitch-bend scenarios---also mesostructural in nature---\DTWEnv outperforms JTFS. This suggests that ``mesostructure'' may lack sufficient specificity to guide loss selection. A more actionable distinction is between spectro-temporal trajectory tasks (favoring \JTFS) and amplitude-modulation tasks (favoring \DTWEnv). Clarifying these boundaries may prove more useful than positioning JTFS as a broadly applicable mesostructural metric.
-
-\subsection{PPL as an Evaluation Metric}
-
-PPL demonstrates strong agreement with listening tests, achieving identical top ranks in five of seven scenarios. This supports its utility as an automated metric in OOD sound-matching. However, divergence in the sine-to-saw and saw-to-sine AM scenarios highlights its limitations.
-
-In these cases, \DTWEnv recovered modulation rates effectively, yielding strong PPL scores, while listeners preferred spectrogram-based losses due to closer harmonic resemblance. PPL is therefore most reliable when critical parameters correspond to perceptually dominant features. Careful selection of critical parameters based on domain knowledge is thus essential for meaningful OOD evaluation.
-
-\subsection{Inter-Rater Correlation Under Domain Shift}
-
-Inter-rater correlation decreased from $\rho = 0.86$ in-domain~\cite{salimi2025evaluating}
-to $\rho = 0.59$ in OOD settings, with per-scenario values ranging from $\rho = 0.36$ to $\rho = 0.67$. This decline reflects the structural ambiguity of OOD tasks. Without exact replication, listeners must weigh competing perceptual features, leading to variability in similarity judgments. Higher correlation occurs in scenarios with a single dominant perceptual feature (e.g., band-pass and chirplet matching), whereas AM scenarios with overlapping perceptual cues produce lower correlations. \todo{what's the takeaway here? sound is subjective?}
-
-\subsection{Implications for Practical Sound-Matching}
-
-These findings reinforce that no universal best loss function exists for sound-matching. Loss selection should be informed by the perceptual dimension most central to the task. For the tasks presented here, these are spectrogram-based losses for filtering, \DTWEnv for modulation patterns, and \JTFS for smooth pitch trajectories.
-
-The consistent performance of \SIMSESpec in filtering tasks suggests that scale-invariant spectral comparison merits broader adoption. Likewise, the success of \DTWEnv demonstrates that dimension-specific losses can outperform general-purpose metrics. Future work should explore additional specialized similarity measures targeting perceptually meaningful attributes in OOD contexts.
 
 % \section{Discussion and Key Findings}
 % In the BP scenario, we see that \SIMSESpec is the best performer, which is consistent with previous findings, and highlights \SIMSESpec as an alternative to the commonly used application of L1 and L2 distances to spectrograms~\cite{turian2020sorry}.
