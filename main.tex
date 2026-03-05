@@ -113,18 +113,20 @@ We first related concepts of audio similarity measures, loss functions, and perf
 \label{sec:measuring_audio_similarity}
 Manual sound-design often takes the form of a feedback loop where the designer hears an output and measures the similarity of what is currently generated versus what they would like to hear. This subjective, internal measurement of sound qualities is difficult to replicate between people with similar tastes, let alone digitally. 
 
-Fourier based measurements of audio similarity are the go-to functions for representation and comparison of sounds. Fourier transformations extract the strength of frequencies present in a signal---the range and resolution of frequencies detected is dependent on the sampling rate and length of the signal. Short-time Fourier Transform (STFT) is perhaps the most common application, where Fourier transformation is applied to segments of the signal (segment length is referred to as \textit{window size}) at equally spaced intervals (or \textit{hop size}); this result is a 2D spectrogram that shows which frequencies are present at which timesteps. Mel-frequency and Multi-scale spectrograms are common derivatives of the STFT technique. 
+Fourier based measurements of audio similarity are the go-to functions for representation and comparison of soundas~\cite{smith2007mathematics}. Fourier transformations extract the strength of frequencies present in a signal---the range and resolution of frequencies detected is dependent on the sampling rate and length of the signal. Short-time Fourier Transform (STFT) is perhaps the most common application, where Fourier transformation is applied to segments of the signal~\cite{smith2007mathematics}. Despite their ubiquity, there are many documented issues with the application of distance metrics on Fourier based losses~\cite{turian2020sorry,salimi2025evaluating,vahidi2023mesostructures}.
 
-Joint-Time Frequency Scattering is the application of wavelet transformations to a time-frequency representation of sounds. It has been recently proposed as an improvement to Fourier-based losses when measuring \textit{mesostructures} of sounds---that is, anything between microstructures of waveshapes to macrostructures of musical arrangements~\cite{lostanlen2019shape}. In our previous work, we've argued that the capabilities of this loss function are likely to be much narrower than speculated. For example, dynamic time warping (DTW) based loss performed decisively better at matching modulations of amplitude, and spectrogram based losses performed better at matching band-pass frequencies.  
+Joint-Time Frequency Scattering is the application of wavelet transformations to a time-frequency representation of sounds. It has been recently proposed as an improvement to Fourier-based losses when measuring \textit{mesostructures} of sounds---that is, anything between microstructures of waveshapes to macrostructures of musical arrangements~\cite{lostanlen2019shape}. In a recent work, we've argued that the capabilities of this loss function are likely to be much narrower than speculated~\cite{salimi2025evaluating}.
 
-Parameter Loss (P-Loss) is another important measure of audio similarity. P-Loss requires that the synthesizers making the two sounds have identical parameters. It is computed as the distance between normalized parameter vectors:
+Parameter Loss (P-Loss) is another important measure of audio similarity~\cite{yee2018automatic,esling2019flow,masuda2021soundmatch}. P-Loss requires that the synthesizers making the two sounds have identical parameters. It is computed as the distance between normalized parameter vectors:
 
 \begin{equation}
 \text{P-Loss} = \|\theta - \theta_0\|_1.
 \end{equation}
 
 
-Audio similarity measures can be used as loss functions or performance measures; however, the two terms are given to distinct functions in the sound-matching framework. A loss function guides the generative process by giving feedback after every optimization step. A performance measure sits outside of the generative process, and is only meant to be an objective measure of success, or a replacement for manual listening tests. We will discuss the sound-matching framework in the following section.
+Audio similarity measures can be used as loss functions or performance measures; however, the two terms are given to distinct functions in the sound-matching framework, which we will discuss in the next section. 
+
+% A loss function guides the generative process by giving feedback after every optimization step. A performance measure sits outside of the generative process, and is only meant to be an objective measure of success, or a replacement for manual listening tests. We will discuss the sound-matching framework in the following section.
 
 \subsection{Sound-Matching Formulation}
 \label{sec:sound-matching_formulation}
