@@ -605,8 +605,9 @@ Chirp: normal                    & 0.643 & $4.85\times10^{-20}$ \\
 
 
 \section{Discussion}
-Based on the experiment results, we can now provide some answers to our research questions.
+Based on the experiment results, we can now provide answers for our research questions as well as some practical implications.
 
+\subsection{Key Findings}
 \textbf{Q1: Does Synthesis-Dependent Loss Behavior Generalize Beyond In-Domain Settings?} \\ Yes. Across all seven scenarios, the relative effectiveness of loss functions remained tied to the synthesis task rather than converging on a single best performer. \SIMSESpec{} dominated band-pass filtering, \DTWEnv{} dominated amplitude modulation, and \JTFS{} dominated smooth pitch trajectories---the same pattern observed in-domain~\cite{salimi2025evaluating}.
 
 This finding has a direct consequence for practitioners: the choice of loss function should be informed by the synthesis task at hand, not selected once and applied universally. The guidance developed from in-domain experiments in~\cite{salimi2025evaluating}---spectrogram losses for filtering, \DTWEnv{} for amplitude modulation, and \JTFS{} for chirplets---transfers to OOD settings.
@@ -622,6 +623,18 @@ PPL agreed with hearing tests on the top-ranked loss in five of seven scenarios.
 Divergence occurs when perceptually important features fall outside the measured parameters. For example, in the AM scenarios with overlapping carrier frequencies, PPL favored \DTWEnv{} for accurately recovering modulation rate, while listeners preferred spectrogram-based losses that better preserved harmonic content. Thus, PPL can provide a useful automated metric for OOD sound-matching when its critical parameters correspond to perceptually dominant features; the selection of such critical parameters requires domain knowledge, where the sound-designer knows what characteristics they are looking for, and which parameters correspond to these characteristics.
 
 While PPL does not replace listening tests, it fills a gap in future OOD evaluations by offering a scalable parameter-based metric that can complement listening studies in large-scale benchmarking.
+
+\subsection{Practical Implications}
+
+The findings of this work lead to several practical recommendations for both practitioners and researchers.
+
+\textbf{Loss function selection is a creative decision.} There is no universally best loss function. Instead, the choice should be guided by the synthesis task: spectrogram-based losses (preferably \SIMSESpec{} over \LoneSpec{}) for filtering tasks, \DTWEnv{} for amplitude modulation tasks, and \JTFS{} for smooth pitch trajectory tasks. Much like selecting a synthesizer for a desired sound, the loss function should be considered part of the creative toolkit.
+
+\textbf{SIMSE deserves wider adoption.} \SIMSESpec{} matched or outperformed \LoneSpec{} in every scenario tested across both this work and the in-domain study~\cite{salimi2025evaluating}. The common practice of applying L1 or L2 distances to spectrograms may therefore be suboptimal, particularly in settings where global gain changes accompany the synthesis process.
+
+\textbf{Specialized losses can outperform general-purpose metrics.} Both \DTWEnv{} and \SIMSESpec{} outperform more established approaches such as \JTFS{} and \LoneSpec{} when applied to tasks aligned with their design. This aligns with the takeaway from the in-domain experiments of past work~\cite{salimi2025evaluating}, suggesting that developing additional loss functions targeting specific perceptual dimensions (e.g., roughness, spectral centroid trajectories, or onset characteristics) may be more productive than pursuing a single universal metric. 
+
+\textbf{OOD experiment design requires careful PPL definition.} For researchers constructing OOD benchmarks, PPL is most effective when the chosen critical parameters are both shared across synthesizers and perceptually dominant in the resulting sound. In practice, validating PPL against a smaller set of listening tests before relying on it for large-scale evaluation is recommended.
 
 
 \section{Conclusion, Limitations, and Future Work}
