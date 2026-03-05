@@ -1,3 +1,5 @@
 find earlier sound-matching works, who coined the term?
 
 try to make it clear that we care about audio representations, and how to compare those audio representations
+
+Maybe justify why chirplets are important
