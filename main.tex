@@ -452,10 +452,9 @@ In these scenarios, the \texttt{amp} values can match, but the frequency content
 
 \subsection{Pitch-Bending}
 \label{sec:chirplet_scenarios}
-This group tests three scenarios involving synthesizers that produce tones with increasing pitch, resembling ``chirplets''~\cite{vahidi2023mesostructures}. The main scenario (Section 4.3.1) is OOD, while the remaining two (Sections 4.3.2 and 4.3.3) are in-domain variants included for comparison with prior work by Vahidi et al.\cite{vahidi2023mesostructures}. 
+This group tests three scenarios involving synthesizers that produce tones with increasing pitch, or ``chirplets''~\cite{mann1995chirplet,lostanlen2019shape}. The main scenario (Section 4.3.1) is OOD, while the remaining two (Sections 4.3.2 and 4.3.3) are in-domain variants included for comparison with prior work by Vahidi et al.\cite{vahidi2023mesostructures}. 
 
 The base synthesizer (Listing~\ref{lst:pitchbendup}) produces a sine wave at a starting pitch that remains steady for a delay period, after which an exponential upward pitch bend is applied. The search parameters are the starting pitch (30–500 Hz) and the rate of pitch increase (1–20 samples per time step).
-
 
 
 \subsubsection{Delayed Pitch-Bending}

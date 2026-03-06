@@ -1,11 +1,17 @@
-find earlier sound-matching works, who coined the term?
-
 try to make it clear that we care about audio representations, and how to compare those audio representations
 
-Maybe justify why chirplets are important
 
 some listings used variables and some used actualy numbers
 
 emphasise that this is the first systematic OOD experiment
 
 PPL is still useful because it tells us whether a loss is good at a task (DTW is good at amplitude matching)
+
+
+
+OOD experiments are avoided, despite their importance. Conducting OOD experiments is important for verification of loss function performance. 
+
+Here we proposed a methodology to conduct OOD experiments (that is, experiments where the target cannot be reached) by designing synthesizers that partially overlap in functionality, and using the overlapping parameters as a partial form of parameter loss. 
+
+We conduct out-of-domain experiments that measure loss function performance, and show the utility of PPL as a method of automatic evaluation and verification of loss function capabilities. 
+
