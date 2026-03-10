@@ -1,9 +1,15 @@
 try to make it clear that we care about audio representations, and how to compare those audio representations
 
-
 some listings used variables and some used actualy numbers
 
 emphasise that this is the first systematic OOD experiment
+
+compare rankings between the listeners
+
+
+
+
+# important points
 
 PPL is still useful because it tells us whether a loss is good at a task (DTW is good at amplitude matching)
 
