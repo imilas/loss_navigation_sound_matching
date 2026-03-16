@@ -300,8 +300,10 @@ For each performance measure and scenario, nonparametric Scott-Knott procedure (
  Here we use \BPSaw as the target synthesizer, and \BPNoise as the imitator. Since the filter cutoffs are the only shared parameters and are the perceptually dominant feature in both synthesizers, PPL is defined as the L2 distance between the normalized lp\_cut and hp\_cut values.
 
 \noindent \textbf{Results.} Like previous work, hearing tests reveal the spectrogram based losses as appropriate for band-passing~\cite{salimi2025evaluating}. As shown in Table~\ref{tab:scenario_ranks}, both hearing tests and PPL determine \SIMSESpec to be the best performing loss function for the band-passing scenario. However, there are differences in how ranks 2-4 were assigned. 
- 
-\begin{table*}[t]
+
+
+
+ \begin{table*}[tbhp]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
@@ -310,13 +312,13 @@ For each performance measure and scenario, nonparametric Scott-Knott procedure (
 \begin{tabular}{|l|cc|cc|cc|cc|cc|cc|cc|}
 \hline
 \textbf{Loss} 
-& \multicolumn{2}{|c|}{\textbf{AM: non-overlap}} 
+& \multicolumn{2}{|c|}{\textbf{BP: noise $\rightarrow$ saw}} 
+& \multicolumn{2}{c|}{\textbf{AM: non-overlap}} 
 & \multicolumn{2}{c|}{\textbf{AM: sine $\rightarrow$ saw}} 
 & \multicolumn{2}{c|}{\textbf{AM: saw $\rightarrow$ sine}} 
-& \multicolumn{2}{c|}{\textbf{BP: noise $\rightarrow$ saw}} 
 & \multicolumn{2}{c|}{\textbf{Chirp: delayed}} 
-& \multicolumn{2}{c|}{\textbf{Chirp: pulsating}} 
-& \multicolumn{2}{c|}{\textbf{Chirp: no delay}} \\
+& \multicolumn{2}{c|}{\textbf{Chirp: no delay}} 
+& \multicolumn{2}{c|}{\textbf{Chirp: pulsating}} \\
 \cline{2-15}
 & \textbf{PPL} & \textbf{Likert}
 & \textbf{PPL} & \textbf{Likert}
@@ -326,20 +328,16 @@ For each performance measure and scenario, nonparametric Scott-Knott procedure (
 & \textbf{P-Loss} & \textbf{Likert}
 & \textbf{P-Loss} & \textbf{Likert} \\
 \hline
-SIMSE & 2 & 3 & 3 & 1 & 2 & 2 & 1 & 1 & 3 & 3 & 2 & 3 & 3 & 3 \\
-L1    & 3 & 2 & 4 & 4 & 4 & 1 & 3 & 2 & 4 & 4 & 3 & 4 & 2 & 2 \\
-JTFS  & 4 & 4 & 2 & 3 & 3 & 3 & 4 & 4 & 1 & 1 & 2 & 2 & 1 & 1 \\
-DTW   & 1 & 1 & 1 & 2 & 1 & 3 & 2 & 3 & 2 & 2 & 1 & 1 & 4 & 4 \\
+SIMSE & 1 & 1 & 2 & 3 & 3 & 1 & 2 & 2 & 3 & 3 & 3 & 3 & 2 & 3 \\
+L1    & 3 & 2 & 3 & 2 & 4 & 4 & 4 & 1 & 4 & 4 & 2 & 2 & 3 & 4 \\
+JTFS  & 4 & 4 & 4 & 4 & 2 & 3 & 3 & 3 & 1 & 1 & 1 & 1 & 2 & 2 \\
+DTW   & 2 & 3 & 1 & 1 & 1 & 2 & 1 & 3 & 2 & 2 & 4 & 4 & 1 & 1 \\
 \hline
 \end{tabular}%
 }
 \caption{Summary of ranks across seven scenarios using two evaluation measures: bootstrapped PPL and bootstrapped hearing survey ratings. Lower rank indicates better performance.}
 \label{tab:scenario_ranks}
 \end{table*}
-
-
-
-
 
 
 \begin{lstlisting}[caption={\BPNoise}, label={lst:program0}, language=Faust,
@@ -492,13 +490,13 @@ Regardless, all correlations are positive and statistically significant, and thi
 \hline
 \textbf{Scenario} & $\boldsymbol{\rho}$ & \textbf{p-value} \\
 \hline
+BP: noise $\rightarrow$ saw      & 0.550 & $4.77\times10^{-14}$ \\
 AM: non-overlapping freqs        & 0.435 & $8.97\times10^{-9}$ \\
 AM: sine $\rightarrow$ saw       & 0.359 & $3.23\times10^{-6}$ \\
 AM: saw $\rightarrow$ sine       & 0.458 & $1.15\times10^{-9}$ \\
-BP: noise $\rightarrow$ saw      & 0.550 & $4.77\times10^{-14}$ \\
 Chirp: delayed pitchbend         & 0.665 & $8.39\times10^{-22}$ \\
-Chirp: pulsating                 & 0.561 & $1.24\times10^{-14}$ \\
 Chirp: normal                    & 0.643 & $4.85\times10^{-20}$ \\
+Chirp: pulsating                 & 0.561 & $1.24\times10^{-14}$ \\
 \hline
 \textbf{Overall (all scenarios)} & \textbf{0.592} & \textbf{$4.95\times10^{-107}$} \\
 \hline
