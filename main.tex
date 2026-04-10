@@ -243,6 +243,7 @@ For each loss function and scenario, we bootstrap 1,000 resampled means from the
 
 \section{Scenarios and Results}
 \label{sec:scenarios}
+The scenarios tested here are utilize simple synthesizer methods that are both common in previous work~\cite{engel2020ddsp,vahidi2023mesostructures,lostanlen2019shape} and routinely utilized in sound-design~\cite{roads1996computer,lyons1997understanding}. Additionally, the simplicity of the synthesizers here is an intentional design choice as to simplify our understanding of how synthesizers and loss functions interact~\cite{salimi2025evaluating}.
 
 
 \subsection{Band Pass Matching }
@@ -250,13 +251,47 @@ For each loss function and scenario, we bootstrap 1,000 resampled means from the
 
 \textbf{Setup.} The two synthesizers in this scenario apply band-pass filtering to different source signals: \BPNoise filters white noise (Listing~\ref{lst:program0}), while \BPSaw filters a saw oscillator (Listing~\ref{lst:program0_saw}). Both synthesizers share two parameters: a low-pass cutoff (lp\_cut) and a high-pass cutoff (hp\_cut). The source signals differ---noise contains energy at all frequencies with high variation, while a saw wave has a deterministic harmonic series---making exact replication impossible. We use \BPSaw as the target synthesizer, and \BPNoise as the imitator, since the filter cutoffs are the only shared parameters as well as the clear perceptually dominant feature in both synthesizers. 
  
- \noindent \textbf{PPL:} Defined as the L2 distance between the normalized lp\_cut and hp\_cut values.
+ \noindent \textbf{PPL:} Defined as the L2 distance between the normalized lp\_cut and hp\_cut values. 
 
 \noindent \textbf{Results.} Like previous work, hearing tests reveal the spectrogram based losses as appropriate for band-passing~\cite{salimi2025evaluating}. As shown in Table~\ref{tab:scenario_ranks}, both hearing tests and PPL determine \SIMSESpec to be the best performing loss function for the band-passing scenario. However, there are differences in how ranks 2-4 were assigned. 
 
+%  \begin{table*}[tbhp]
+% \centering
+% \small
+% \setlength{\tabcolsep}{4pt}
+% \renewcommand{\arraystretch}{1.15}
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{|l|cc|cc|cc|cc|cc|cc|cc|}
+% \hline
+% \textbf{Loss} 
+% & \multicolumn{2}{|c|}{\textbf{BP: noise $\rightarrow$ saw}} 
+% & \multicolumn{2}{c|}{\textbf{AM: non-overlap}} 
+% & \multicolumn{2}{c|}{\textbf{AM: sine $\rightarrow$ saw}} 
+% & \multicolumn{2}{c|}{\textbf{AM: saw $\rightarrow$ sine}} 
+% & \multicolumn{2}{c|}{\textbf{Chirp: delayed}} 
+% & \multicolumn{2}{c|}{\textbf{Chirp: no delay}} 
+% & \multicolumn{2}{c|}{\textbf{Chirp: pulsating}} \\
+% \cline{2-15}
+% & \textbf{PPL} & \textbf{Likert}
+% & \textbf{PPL} & \textbf{Likert}
+% & \textbf{PPL} & \textbf{Likert}
+% & \textbf{PPL} & \textbf{Likert}
+% & \textbf{PPL} & \textbf{Likert}
+% & \textbf{P-Loss} & \textbf{Likert}
+% & \textbf{P-Loss} & \textbf{Likert} \\
+% \hline
+% SIMSE & 1 & 1 & 2 & 3 & 3 & 1 & 2 & 2 & 3 & 3 & 3 & 3 & 2 & 3 \\
+% L1    & 3 & 2 & 3 & 2 & 4 & 4 & 4 & 1 & 4 & 4 & 2 & 2 & 3 & 4 \\
+% JTFS  & 4 & 4 & 4 & 4 & 2 & 3 & 3 & 3 & 1 & 1 & 1 & 1 & 2 & 2 \\
+% DTW   & 2 & 3 & 1 & 1 & 1 & 2 & 1 & 3 & 2 & 2 & 4 & 4 & 1 & 1 \\
+% \hline
+% \end{tabular}%
+% }
+% \caption{Summary of ranks across seven scenarios using two evaluation measures: bootstrapped PPL and bootstrapped hearing survey ratings. Lower rank indicates better performance.}
+% \label{tab:scenario_ranks}
+% \end{table*}
 
-
- \begin{table*}[tbhp]
+\begin{table*}[tbhp]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
@@ -281,16 +316,17 @@ For each loss function and scenario, we bootstrap 1,000 resampled means from the
 & \textbf{P-Loss} & \textbf{Likert}
 & \textbf{P-Loss} & \textbf{Likert} \\
 \hline
-SIMSE & 1 & 1 & 2 & 3 & 3 & 1 & 2 & 2 & 3 & 3 & 3 & 3 & 2 & 3 \\
-L1    & 3 & 2 & 3 & 2 & 4 & 4 & 4 & 1 & 4 & 4 & 2 & 2 & 3 & 4 \\
+SIMSE & 1 & 1 & 2 & 3 & 3 & 1 & 2 & 2 & 3 & 3 & 3 & 3 & 2 & 2 \\
+L1    & 3 & 2 & 3 & 2 & 4 & 4 & 4 & 1 & 4 & 4 & 2 & 2 & 3 & 3 \\
 JTFS  & 4 & 4 & 4 & 4 & 2 & 3 & 3 & 3 & 1 & 1 & 1 & 1 & 2 & 2 \\
-DTW   & 2 & 3 & 1 & 1 & 1 & 2 & 1 & 3 & 2 & 2 & 4 & 4 & 1 & 1 \\
+DTW   & 2 & 3 & 1 & 1 & 1 & 3 & 1 & 4 & 2 & 2 & 4 & 4 & 1 & 1 \\
 \hline
 \end{tabular}%
 }
 \caption{Summary of ranks across seven scenarios using two evaluation measures: bootstrapped PPL and bootstrapped hearing survey ratings. Lower rank indicates better performance.}
 \label{tab:scenario_ranks}
 \end{table*}
+
 
 
 \begin{lstlisting}[caption={\BPNoise}, label={lst:program0}, language=Faust,
