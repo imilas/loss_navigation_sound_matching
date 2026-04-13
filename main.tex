@@ -289,7 +289,7 @@ process = sineOsc(amp)*sawOsc(car);
 import("stdfaust.lib");
 increase_speed = hslider("increase_speed",2,1,20,0.1);
 starting_pitch = hslider("starting_pitch",200,30,500,0.1);
-sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(3*ma.PI):sin;
+sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(2*ma.PI):sin;
 increasing_pitch(rate) = _ ~+(rate/ma.SR):exp;
 process = sineOsc(increasing_pitch(increase_speed):de.delay((*$\delta$*),48000)+starting_pitch);
 \end{lstlisting}
@@ -299,7 +299,7 @@ process = sineOsc(increasing_pitch(increase_speed):de.delay((*$\delta$*),48000)+
 import("stdfaust.lib");
 incr_speed = hslider("increase_speed", 4.57, 2, 7, 0.1);
 pulse_rate = hslider("pulse_rate", 3.93, 1, 10, 0.1);
-sineOsc(f) = +(f/ma.SR) ~ ma.frac : *(3*ma.PI) : sin;
+sineOsc(f) = +(f/ma.SR) ~ ma.frac : *(2*ma.PI) : sin;
 sawOsc(f) = +(f/ma.SR) ~ ma.frac : +(0.5);
 incr_pitch(rate) = _ ~ +(rate/ma.SR) : exp;
 process = sineOsc(30 + incr_pitch(incr_speed) + sawOsc(pulse_rate) * 526);
