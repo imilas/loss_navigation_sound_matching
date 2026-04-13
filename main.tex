@@ -99,7 +99,6 @@ We propose an approach to OOD experiments that can be automatically evaluated, a
 
 
 \section{Background and Previous Work}
-We begin with a review of related concepts of audio similarity measures, loss functions, and performance measures, then define the sound-matching problem, its subtypes, and the importance of out-of-domain experiments.
 
 \subsection{Measuring Audio Similarity}
 \label{sec:measuring_audio_similarity}
@@ -181,7 +180,9 @@ For each loss function and scenario, we bootstrap 1,000 resampled means from the
 
 \section{Scenarios and Results}
 \label{sec:scenarios}
-The scenarios tested here are utilize simple synthesizer methods that are both common in previous work~\cite{engel2020ddsp,vahidi2023mesostructures,lostanlen2019shape} and routinely utilized in sound-design~\cite{roads1996computer,lyons1997understanding}. Additionally, the simplicity of the synthesizers here is an intentional design choice as to simplify our understanding of how synthesizers and loss functions interact~\cite{salimi2025evaluating}.
+The scenarios tested here use simple synthesizer methods common in 
+both prior work~\cite{engel2020ddsp,vahidi2023mesostructures} and sound-design~\cite{roads1996computer,
+lyons1997understanding}; this simplicity is intentional as it isolates the interaction between loss and synthesizers~\cite{salimi2025evaluating}. 
 
 
 \subsection{Band Pass Matching }
@@ -255,24 +256,26 @@ DTW   & 2 & 3 & 1 & 1 & 1 & 3 & 1 & 4 & 2 & 2 & 4 & 4 & 1 & 1 \\
 \end{table*}
 
 
-\begin{lstlisting}[caption={\BPNoise}, label={lst:program0}, language=Faust,
-                  float, floatplacement=!H, xleftmargin=1em, xrightmargin=0.5em, firstnumber=0, aboveskip=0em, belowskip=-1em]
+\begin{lstlisting}[caption={\BPNoise}, label={lst:program0}]
 import("stdfaust.lib");
 lp_cut = hslider("lp_cut",900,100,5000,5);
 hp_cut = hslider("hp_cut",100,1,400,5);
 process = no.noise:fi.lowpass(3,lp_cut):fi.highpass(10,hp_cut);
 \end{lstlisting}
+\vspace{-0.4em}
 
-\begin{lstlisting}[caption={\BPSaw}, label={lst:program0_saw}, language=Faust,
-                  float, floatplacement=!H, xleftmargin=1em, xrightmargin=0.5em, firstnumber=0, aboveskip=0em, belowskip=-1em]
+\begin{lstlisting}[caption={\BPSaw}, label={lst:program0_saw}]
 import("stdfaust.lib");
 lp_cut = hslider("lp_cut", 2801, 100, 5000, 1);
 hp_cut = hslider("hp_cut", 142, 1, 400, 1);
 sawOsc(f) = +(f/ma.SR) ~ ma.frac;
 process = sawOsc(30):fi.lowpass(5, lp_cut):fi.highpass(5, hp_cut);
 \end{lstlisting}
+\vspace{-0.4em}
 
-\begin{lstlisting}[caption={\FMMod}, label={lst:program3},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+\begin{lstlisting}[caption={\FMMod. \FMModvtwo replaces 
+\texttt{sawOsc(car)} with \texttt{sineOsc(car)} and removes 
+line~4.}, label={lst:program3}]
 import("stdfaust.lib");
 carrier = hslider("car",car_a,car_b,car_c,1);
 amp = hslider("amp",amp_a,amp_b,amp_c,1);
@@ -280,40 +283,32 @@ sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(2*ma.PI) : sin;
 sawOsc(f) = +(f/ma.SR) ~ ma.frac;
 process = sineOsc(amp)*sawOsc(car);
 \end{lstlisting}
+\vspace{-0.4em}
 
-\begin{lstlisting}[caption={\FMModvtwo}, label={lst:program3_v2},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
-import("stdfaust.lib");
-carrier = hslider("car",car_a,car_b,car_c,1);
-amp = hslider("amp",amp_a,amp_b,amp_c,1);
-sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(2*ma.PI) : sin;
-process = sineOsc(amp)*sineOsc(car);
-\end{lstlisting}
-
-\begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp. When created, $\delta$ is randomly assigned a value between 5000-30000 samples (Delayed Pitch-bend) or set to 0 (No-delay Pitch-bend)}, label={lst:pitchbendup},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+\begin{lstlisting}[escapeinside={(*}{*)},caption={\PitchBendUp. When created, $\delta$ is randomly assigned a value between 5000-30000 samples (Delayed Pitch-bend) or set to 0 (No-delay Pitch-bend)}, label={lst:pitchbendup}]
 import("stdfaust.lib");
 increase_speed = hslider("increase_speed",2,1,20,0.1);
 starting_pitch = hslider("starting_pitch",200,30,500,0.1);
 sineOsc(f) = +(f/ma.SR) ~ ma.frac:*(3*ma.PI):sin;
 increasing_pitch(rate) = _ ~+(rate/ma.SR):exp;
 process = sineOsc(increasing_pitch(increase_speed):de.delay((*$\delta$*),48000)+starting_pitch);
-
 \end{lstlisting}
+\vspace{-0.4em}
 
-\begin{lstlisting}[escapeinside={(*}{*)},caption={\textbf{Pulsating PitchBend}}, label={lst:pitchbendup_pulse},language=Faust,float,floatplacement=!H,xleftmargin=1em,xrightmargin=0.5em,firstnumber=0,aboveskip=0em, belowskip=-1em]
+\begin{lstlisting}[escapeinside={(*}{*)},caption={\textbf{Pulsating PitchBend}}, label={lst:pitchbendup_pulse}]
 import("stdfaust.lib");
-increase_speed = hslider("increase_speed", 4.57, 2, 7, 0.1);
+incr_speed = hslider("increase_speed", 4.57, 2, 7, 0.1);
 pulse_rate = hslider("pulse_rate", 3.93, 1, 10, 0.1);
 sineOsc(f) = +(f/ma.SR) ~ ma.frac : *(3*ma.PI) : sin;
 sawOsc(f) = +(f/ma.SR) ~ ma.frac : +(0.5);
-increasing_pitch(rate) = _ ~ +(rate/ma.SR) : exp;
-process = sineOsc(30 + increasing_pitch(increase_speed) + sawOsc(pulse_rate) * 526);
+incr_pitch(rate) = _ ~ +(rate/ma.SR) : exp;
+process = sineOsc(30 + incr_pitch(incr_speed) + sawOsc(pulse_rate) * 526);
 \end{lstlisting}
-
 
 \subsection{AM-Synthesizer Matching}
 \label{sec:am_sound_matching}
 
- This group contains three OOD scenarios built from two AM synthesizers.  \FMMod and \FMModvtwo as described in Listings~\ref{lst:program3} and~\ref{lst:program3_v2} are the basis for the three variations of this scenario. \FMMod generates a sound by modifying the amplitude of a saw oscillator with a sinusoidal LFO. \FMModvtwo uses sine oscillators for both the carrier and the modulator. Parameters \texttt{amp} and \texttt{car} determine the LFO and carrier frequency. The value of \texttt{amp} shapes the amplitude of the sound (or the wobbling effect), and \texttt{car} determines the frequency (or pitch) of the sound.
+ This group contains three OOD scenarios built from two AM synthesizers.  \FMMod and \FMModvtwo as described in Listing~\ref{lst:program3} are the basis for the three variations of this scenario. \FMMod generates a sound by modifying the amplitude of a saw oscillator with a sinusoidal LFO. \FMModvtwo uses sine oscillators for both the carrier and the modulator. Parameters \texttt{amp} and \texttt{car} determine the LFO and carrier frequency. The value of \texttt{amp} shapes the amplitude of the sound (or the wobbling effect), and \texttt{car} determines the frequency (or pitch) of the sound.
 
 In these scenarios, \texttt{amp} values can match, but the harmonic content (or \texttt{car}) cannot. In version 1 (Non-Overlapping Frequencies), the available frequency ranges are different. In version 2 (Sine Target, Saw Imitator), the imitator can only make sine tones while the target can only make saw waves, and vice versa for scenario 3 (Saw Target, Sine Imitator). 
 
@@ -378,33 +373,13 @@ Parameter-based evaluations assign identical top ranks in five of seven scenario
 
 We use inter-class correlation (ICC) to measure reliability of blinded hearing test results of the four authors~\cite{liljequist2019intraclass}. Specifically, we used the ICC3 formula which prioritizes the relative rankings, and not the exact scores given by each listener. The overall coefficient was 0.61 with a near-zero p-value, indicating moderate agreement. Top row of Table~\ref{tab:scenario_ranks} shows the Per-program ICC values.
 
-
 \section{Discussion}
-Based on the experiment results, we can now provide answers for our research questions as well as practical implications.
 
-\subsection{Key Findings and Practical Implications}
-\textbf{Q1:} Does Synthesis-Dependent Loss Behavior Generalize Beyond In-Domain Settings? \\ Yes. Across all seven scenarios, the relative effectiveness of loss functions remained tied to the synthesis task rather than converging on a single best performer. \SIMSESpec{} dominated band-pass filtering, \DTWEnv{} dominated amplitude modulation, and \JTFS{} dominated smooth pitch trajectories---the same pattern observed in-domain~\cite{salimi2025evaluating}.
+The results in Table~\ref{tab:scenario_ranks} confirm that synthesis-dependent loss behavior generalizes to OOD settings \textbf{(Q1)}, and that the reported advantages and limitations of each loss function largely persist under synthesizer mismatch \textbf{(Q2)}, with one important caveat: in AM scenarios with overlapping carriers, \DTWEnv achieves the best PPL but is outperformed perceptually by spectrogram losses, revealing a trade-off between matching specific features and overall timbre. PPL reliably identifies loss function capabilities when the critical parameters capture the perceptually dominant feature, but should be complemented by listening tests when multiple perceptual factors compete \textbf{(Q3)}.
 
-\textbf{Q2:} Do Reported Advantages and Limitations Persist Under Synthesizer Mismatch?\\
-Largely yes, with important caveats. \SIMSESpec{} retains its advantage over \LoneSpec{} for band-pass matching, while \DTWEnv{} remains strongest for amplitude modulation, especially when only envelope dynamics transfer. However, in AM scenarios with overlapping carriers, \DTWEnv{} achieves the best PPL but is outperformed perceptually by spectrogram losses, revealing a trade-off between matching specific features and overall timbre. \JTFS{} continues to excel for smooth pitch trajectories (e.g., delayed and no-delay chirps), but underperforms on pulsating pitch-bends, where \DTWEnv{} dominates. This suggests \JTFS simply excels at capturing smooth spectro-temporal trajectories with slight offsets, and not ``mesostructures'' as a whole, as previous work have reported~\cite{vahidi2023mesostructures,lostanlen2019shape}. 
+A notable result is that \JTFS excels for smooth pitch trajectories but underperforms on pulsating pitch-bends, where \DTWEnv dominates. Since the pulsating trajectory falls within the definition of ``mesostructure''~\cite{vahidi2023mesostructures,lostanlen2019shape}, this suggests \JTFS's strength is more narrowly scoped than the ``mesostructure'' framing implies.
 
-\textbf{Q3:} Can PPL Serve as a Reliable Automated Metric?\\
-PPL reliably measures whether a loss recovers the critical parameters of a clearly defined synthesis task. It aligns with perceptual results when those parameters reflect the dominant feature (e.g., band-pass, AM non-overlap, delayed chirp), but diverges when multiple perceptual factors compete (e.g., AM with overlapping carriers). Thus, PPL is effective when task-relevant parameters are well-defined, and should be complemented by listening tests.
-
-% \textbf{Q2:} Do Reported Advantages and Limitations Persist Under Synthesizer Mismatch?\\
-% Largely, yes, however, certain caveats must be noted. \SIMSESpec{} retained its advantage over \LoneSpec{} for band-pass matching, consistent with the in-domain findings, highlighting the benefit of scale-invariant comparison when filter cutoffs might reshape spectral energy. Notably, \LoneSpec{}, despite being widely used in the literature, never ranked first under hearing tests. \DTWEnv{} remained the strongest performer for amplitude modulation tasks: in the non-overlapping frequency scenario where carrier frequencies could not match, it dominated both PPL and hearing tests because envelope dynamics were the only transferable feature. However, in AM scenarios with overlapping carrier frequencies, a limitation emerged: while \DTWEnv{} accurately recovered the modulation rate and achieved the best PPL scores, listeners preferred spectrogram-based losses that better preserved overall timbral similarity. This divergence illustrates how OOD conditions introduce a trade-off between matching specific signal features and transferring a broad spectrum of sound characteristics. Finally, \JTFS{} retained its advantage for chirplet-like pitch trajectories, ranking first in both delayed (OOD) and no-delay (in-domain) pitch-bending scenarios; in particular, the delayed case shows how \JTFS{}'s multi-resolution time–frequency representation accommodates temporal offsets that strongly penalize spectrogram-based losses, confirming the robustness reported by previous work~\cite{vahidi2023mesostructures,lostanlen2019shape}.
-
-% However, the pulsating pitch-bend scenario challenges broader claims about \JTFS{}. The pulsating pitch trajectory---a pitch that increases overall while oscillating periodically---falls within the definition of ``mesostructure'' as described by Vahidi \textit{et al.} yet \DTWEnv{} outperformed \JTFS{} under both PPL and hearing tests. Combined with the AM results, this suggests that the effectiveness of \JTFS{} may be more narrowly scoped than the ``mesostructure'' label implies. A more precise characterization is that \JTFS{} excels at capturing smooth spectro-temporal trajectories, whereas \DTWEnv{} (or other DTW based losses) is better suited to periodic modulation patterns, whether they modulate amplitude or pitch.
-
-% \textbf{Q3:} Can PPL Serve as a Reliable Automated Metric?\\
-% PPL should measure whether a loss function achieves a specific, well-defined synthesis task---recovering the critical parameters that the experimenter has identified as the target of the sound-matching process. If designed properly, PPL provides consistent and informative results regarding the success and utility of loss functions.
-
-% PPL is most reliable as a standalone metric when the critical parameters capture the perceptually dominant feature of the scenario. This held in three of five OOD scenarios (band-pass, AM non-overlap, delayed chirp), where PPL and hearing tests agreed on the top-ranked loss. In the remaining two OOD scenarios (AM with overlapping carriers), additional perceptual dimensions competed for listener attention, causing the two measures to diverge. But even in this case, the use of PPL increased our understanding of the strengths and weaknesses of the loss functions (mainly, \DTWEnv). Generally, we can say that when the synthesis task of interest aligns closely with the critical parameters, PPL provides a scalable evaluation method; when multiple perceptual features compete, PPL must be verified with hearing tests.
-
-
-% PPL can be utilized in scalable, automatic evaluation of loss function capabilities in OOD settings. However, we recommend validating PPL against a smaller set of listening tests before use in large-scale evaluation, particularly when the choice of critical parameters involves judgment about which features are perceptually dominant.
-
-\textbf{Practical Implications:} The findings of this work lead to several practical recommendations. First, we find OOD evidence that choice of loss function should be guided by the synthesis task: spectrogram-based losses (preferably \SIMSESpec{} or \LoneSpec{}) for filtering tasks, \DTWEnv{} for amplitude modulation tasks, and \JTFS{} for smooth pitch trajectory tasks.  Second, SIMSE is a viable alternative to L1 and L2 distance metrics for spectrogram comparisons. Third, for researchers interested in OOD benchmarks, PPL with overlapping synthesizers is a viable evaluation strategy, provided the critical parameters are perceptually dominant; validating PPL against a smaller set of listening tests is recommended. 
+\textbf{Practical Implications:} Choice of loss function should be guided by the synthesis task: spectrogram-based losses (preferably \SIMSESpec or \LoneSpec) for filtering, \DTWEnv for amplitude modulation, and \JTFS for smooth pitch trajectories. SIMSE is a viable alternative to L1 and L2 for spectrogram comparisons --- notably, \LoneSpec never ranked first under hearing tests despite being the most commonly used spectrogram loss. For OOD benchmarks, PPL with overlapping synthesizers is a viable evaluation strategy, provided the critical parameters are perceptually dominant; validating against a smaller set of listening tests is recommended.
 
 % \textbf{Specialized losses can outperform general-purpose metrics.} Both \DTWEnv{} and \SIMSESpec{} outperform more established approaches such as \JTFS{} and \LoneSpec{} when applied to tasks aligned with their design. This aligns with the takeaway from the in-domain experiments of past work~\cite{salimi2025evaluating}, suggesting that developing additional loss functions targeting specific perceptual dimensions (e.g., roughness, spectral centroid trajectories, or onset characteristics) may be more productive than pursuing a single universal metric. 
 
@@ -413,13 +388,9 @@ PPL reliably measures whether a loss recovers the critical parameters of a clear
 
 \textbf{Summary:} This work proposed a methodology for controlled OOD sound-matching experiments based on synthesizer pairs with partially overlapping functionality, and introduced Partial Parameter Loss (PPL) as an automatic evaluation metric within this framework. Across seven scenarios, we confirmed that loss function effectiveness remains tightly coupled to the method of synthesis under OOD conditions, consistent with in-domain findings~\cite{salimi2025evaluating}. PPL agreed with hearing tests on the top-ranked loss in 3 of 5 scenarios; disagreements occurred predictably when perceptually important features fell outside the critical parameter set. PPL also proved useful as a diagnostic tool for verifying loss function capabilities.
 
-% \textbf{Summary:} This work addressed a gap in the sound-matching literature: the lack of systematic OOD evaluations. While OOD conditions---where the target sound is unreachable---reflect the reality of practical sound design, prior work has overwhelmingly validated loss functions only in idealized in-domain settings. We proposed a methodology for conducting controlled OOD experiments by designing synthesizer pairs with partially overlapping functionality, enabling both the creation of synthesis-mismatch scenarios and the automatic evaluation of results through Partial Parameter Loss (PPL). These scenarios are designed to be simple to analyze but reflect fundamental sound-design principles.
-
-% Across seven scenarios involving band-pass filtering, amplitude modulation, and pitch-bending synthesizers, we evaluated four differentiable loss functions and confirmed that their effectiveness remains tightly coupled to the method of synthesis in OOD scenarios. PPL proved useful as a diagnostic tool for verifying loss function capabilities (e.g., \DTWEnv for amplitude modulation, \SIMSESpec for filter matching, \JTFS for chirplets). Parameter-based metrics agreed with hearing tests in five of seven cases overall; PPL specifically agreed in three of five OOD scenarios, with disagreements occurring predictably when perceptually important features fell outside the critical parameter set. We also observed lower inter-rater agreement in OOD evaluations compared to previous in-domain results ($\rho$ = 0.59 versus 0.86), reflecting the inherent subjectivity of judging similarity when exact replication is impossible.  
-
 \textbf{Weaknesses:} Whether PPL remains a useful metric for more complex synthesizers with higher-dimensional parameter spaces is an open question. Furthermore, the definition of ``critical parameters'' in PPL requires domain knowledge and judgment, introducing a degree of subjectivity. Additionally, the target sounds here originate from other synthesizers rather than from real-world recordings, which would introduce further complexity beyond the reach of simple DSP models.
 
-\textbf{Future Work:} This work is intended as a starting point for OOD evaluation. Sound-matching is not practical until successful OOD evaluations with pre-recorded targets (regardless of source) are achieved. We hope that the approach demonstrated here lowers the barrier to conducting OOD experiments, encouraging the field to move beyond in-domain validation as the default.  Multi-objective loss combinations are a promising direction. The periodic and multi-modal nature of loss landscapes in sound-matching also remains an open problem; adaptive optimizers or reinforcement learning approaches may offer improvements over fixed-rate gradient descent. Finally, expanding the set of differentiable loss functions to target other (at times subjective) perceptual dimensions would bring sound-matching closer to the nuanced judgments and preferences of sound-designers.
+\textbf{Future Work:} This work is intended as a starting point for OOD evaluations. Sound-matching is not practical until successful OOD evaluations with pre-recorded targets (regardless of source) are achieved. Definition of novel loss functions and combining their strengths is an interesting path forward. Use of heuristics such as Adaptive optimizers or reinforcement learning would likely be an improvement over fixed-rate gradient descent, and more applicable to navigation of loss function landscapes.
 
 % \clearpage
 \bibliographystyle{alpha}
