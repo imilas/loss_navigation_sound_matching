@@ -1,17 +1,23 @@
-\documentclass[10pt]{article} % for thesis
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[submission]{ismir} % Remove the "submission" option for camera-ready version
+
+\usepackage{amsmath,cite,url}
+\usepackage{graphicx}
+\usepackage{color}
 
 % \usepackage[top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}
 % \documentclass[twocolumn,9pt]{article}
-\usepackage{spconf}
-\usepackage[utf8]{inputenc}
-\usepackage{natbib}
-\usepackage{graphicx}
+% \usepackage{spconf}
+% \usepackage[utf8]{inputenc}
+% \usepackage{natbib}
+% \usepackage{graphicx}
 \usepackage{stfloats} % for positioning of figure* on the same page
 \usepackage{caption}
 \usepackage{tikz}
 \usepackage[inline]{enumitem}
-\usepackage{amsmath}
-\usepackage[breaklinks=true,colorlinks=true, allcolors=blue]{hyperref}
+% \usepackage[breaklinks=true,colorlinks=true, allcolors=blue]{hyperref}
 \usepackage{breakcites}
 \usepackage{microtype}
 \usepackage{lipsum}
@@ -24,7 +30,6 @@
 \usepackage{makecell}
 \usepackage{pdfpages}
 \usepackage{xspace}
-\usepackage{tikz}
 
 \usetikzlibrary{positioning,shapes.geometric}
 
@@ -34,7 +39,7 @@
 
 \input{code_style}
 
-\captionsetup[lstlisting]{justification=centering, singlelinecheck=false}
+\captionsetup[lstlisting]{justification=centering, singlelinecheck=false,}
 \providecommand{\gls}[1]{#1}
 \newcommand{\highlight}[1]{\textcolor[RGB]{00,150,00}{#1}}
 \newcommand{\todo}[1]{\textcolor{red}{#1}}
@@ -58,12 +63,57 @@
 \newcommand{\PitchBendUp}{\textbf{PitchBend-Up}\xspace}
 
 \title{Loss Functions and Evaluations in Out-of-Domain Sound-Matching}
+
+% Note: Please do NOT use \thanks or a \footnote in any of the author markup
+
+% Single address
+% To use with only one author or several with the same address
+% ---------------
+\oneauthor
+  {Anonymous Authors}
+  {Anonymous Affiliations\\\texttt{anonymous@ismir.net}}
+
+% Two addresses
+% --------------
+%\twoauthors
+%   {First author} {School \\ Department}
+%   {Second author} {Company \\ Address}
+
+% Three addresses
+% --------------
+% \threeauthors
+%   {First Author} {Affiliation 1 \\ \texttt{author1@ismir.edu}}
+%   {Second Author} {Affiliation 2 \\ \texttt{author2@ismir.edu}}
+%   {Third Author} {Affiliation 3 \\ \texttt{author3@ismir.edu}}
+
+% Four or more addresses
+% OR alternative format for large number of co-authors
+% ------------
+% \multauthor
+%   {First author$^1$ \hspace{1cm} Second author$^1$ \hspace{1cm} Third author$^2$}
+%   {{\bf Fourth author$^3$ \hspace{1cm} Fifth author$^2$ \hspace{1cm} Sixth author$^1$}\\
+%   $^1$ Department of Computer Science, University, Country\\
+%   $^2$ International Laboratories, City, Country\\
+%   $^3$ Company, Address\\
+%   {\tt\small CorrespondenceAuthor@ismir.edu, PossibleOtherAuthor@ismir.edu}
+%   }
+
+% For the author list in the Creative Common license, please enter author names.
+% Please abbreviate the first names of authors and add 'and' between the second to last and last authors.
+\def\authorname{F. Author, S. Author, and T. Author}
+
+% Optional: To use hyperref, uncomment the following.
+\usepackage[bookmarks=false,pdfauthor={\authorname},pdfsubject={\pdfsubject},hidelinks]{hyperref}
+% Mind the bookmarks=false option; bookmarks are incompatible with ismir.sty.
+
+\sloppy % please retain sloppy command for improved formatting
+
 \begin{document}
 
-% \name{Amir Salimi, Abram Hindle, Osmar R. Za{\"i}ane}
-% \address{University of Alberta}
-\name{Author name(s)}
-\address{Address}
+% % \name{Amir Salimi, Abram Hindle, Osmar R. Za{\"i}ane}
+% % \address{University of Alberta}
+% \name{Author name(s)}
+% \address{Address}
 
 
 \maketitle
@@ -74,7 +124,7 @@
 \begin{abstract}
 
 
-In \textit{out-of-domain} (OOD) sound-matching, a synthesizer is optimized to mimic a sound it cannot accurately replicate. Systematic OOD evaluation is underexplored in part because the standard evaluation metric of ``parameter loss'' requires ground-truth parameters that do not exist in OOD settings. We address this by pairing synthesizers that share some but not all functionality---for example, band-pass filters applied to different source signals---so that the shared parameters (e.g., filter cutoffs) can be compared automatically. We call this Partial Parameter Loss: the distance between the critical parameters that both synthesizers have in common.
+In \textit{out-of-domain} (OOD) sound-matching, a synthesizer is optimized to mimic a sound it cannot accurately replicate. Systematic OOD evaluation is underexplored in part because the standard evaluation metric of ``parameter loss'' requires ground-truth parameters that do not exist in OOD settings. We address this by pairing synthesizers that share some but not all functionality---for example, band-pass filters applied to different source signals --- so that the shared parameters (e.g., filter cutoffs) can be compared automatically. We call this Partial Parameter Loss: the distance between the critical parameters that both synthesizers have in common.
 
 We apply this methodology across 7 scenarios involving band-pass filtering, amplitude modulation, and pitch-bending synthesizers which were evaluated with 4 differentiable loss functions (\SIMSESpec, \LoneSpec, \JTFS, \DTWEnv), then validated against blinded human listening tests. Our results confirm that loss function effectiveness remains tightly coupled to the method of synthesis in OOD settings: \SIMSESpec excels at filter cutoff recovery, \DTWEnv consistently recovers amplitude modulation parameters, and \JTFS dominates smooth pitch trajectories. Parameter-based evaluation agrees with hearing tests on the top-ranked loss function in 5 of 7 scenarios, demonstrating utility as a diagnostic tool for identifying loss function capabilities. These findings provide both empirical guidance for selecting similarity measures in practical sound-matching applications and a replicable framework for future OOD experimentation.
 
@@ -105,9 +155,9 @@ We propose an approach to OOD experiments that can be automatically evaluated, a
 \subsection{Measuring Audio Similarity}
 \label{sec:measuring_audio_similarity}
 
-Spectral measurements of audio similarity are the go-to functions for representation and comparison of sounds~\cite{smith2007mathematics}. Fourier transformations extract the strength of frequencies present in a signal---the range and resolution of frequencies detected is dependent on the sampling rate and length of the signal. \textit{Short-time Fourier Transform} (STFT) is perhaps the most common application, where Fourier transformation is applied to segments of the signal~\cite{smith2007mathematics}. Despite their ubiquity, there are many documented issues with the application of distance metrics on Fourier based losses~\cite{turian2020sorry,salimi2025evaluating,vahidi2023mesostructures}.
+Spectral measurements of audio similarity are the go-to functions for representation and comparison of sounds~\cite{smith2007mathematics}. Fourier transformations extract the strength of frequencies present in a signal --- the range and resolution of frequencies detected is dependent on the sampling rate and length of the signal. \textit{Short-time Fourier Transform} (STFT) is perhaps the most common application, where Fourier transformation is applied to segments of the signal~\cite{smith2007mathematics}. Despite their ubiquity, there are many documented issues with the application of distance metrics on Fourier based losses~\cite{turian2020sorry,salimi2025evaluating,vahidi2023mesostructures}.
 
-\textit{Joint Time-Frequency Scattering} (JTFS) is the application of wavelet transformations to a time-frequency representation of sounds~\cite{vahidi2023mesostructures,anden2015joint}. It has been recently proposed as an improvement to Fourier-based losses when measuring \textit{mesostructures} of sounds---that is, anything from microstructures of waveshapes to macrostructures of musical arrangements~\cite{lostanlen2019shape}. However, the capabilities of this function are likely to be much narrower than speculated~\cite{salimi2025evaluating}, an idea which we further test in this work.
+\textit{Joint Time-Frequency Scattering} (JTFS) is the application of wavelet transformations to a time-frequency representation of sounds~\cite{vahidi2023mesostructures,anden2015joint}. It has been recently proposed as an improvement to Fourier-based losses when measuring \textit{mesostructures} of sounds --- that is, anything from microstructures of waveshapes to macrostructures of musical arrangements~\cite{lostanlen2019shape}. However, the capabilities of this function are likely to be much narrower than speculated~\cite{salimi2025evaluating}, an idea which we further test in this work.
 
 \textit{Parameter Loss} (P-Loss) is another important measure of audio similarity~\cite{yee2018automatic,esling2019flow}. P-Loss requires that the synthesizers making the two sounds have identical parameters. It is computed as the distance between normalized parameter vectors,  or $\text{P-Loss} = \|\theta - \theta_0\|_1$. Despite having the term \textit{loss} in its name, it is generally used as a final evaluation measure of a sound-matching, not as a loss function that guides the search process. This distinction between loss and evaluation measure is further discussed in the next section.
 
@@ -132,7 +182,7 @@ Despite the practical importance of OOD sound-matching, systematic OOD experimen
 We evaluate four differentiable loss functions across five out-of-domain (OOD) and two in-domain sound-matching scenarios. The experiment structure is as follows:
 
 \begin{enumerate}
-    \item A \textbf{scenario} is defined by a pair of synthesizers---an imitator $g$ and a target $g^t$. Each scenario represents a distinct sound-design task.
+    \item A \textbf{scenario} is defined by a pair of synthesizers --- an imitator $g$ and a target $g^t$. Each scenario represents a distinct sound-design task.
     \item Within each scenario, four \textbf{experiments} are conducted, one for each loss function.
     \item Each experiment consists of \textbf{300 independent trials}. In each trial, a target sound is generated by randomly sampling parameters $\theta^t$ for $g^t$, the imitator parameters $\hat{\theta}$ are randomly initialized, and 200 steps of gradient-based optimization are performed to minimize the loss between $g(\hat{\theta})$ and $x^t = g^t(\theta^t)$.
     \item Each trial is evaluated and given a performance score.
@@ -255,7 +305,6 @@ DTW   & 2 & 3 & 1 & 1 & 1 & 3 & 1 & 4 & 2 & 2 & 4 & 4 & 1 & 1 \\
 \caption{Summary of ranks across seven scenarios using two evaluation measures: bootstrapped PPL and bootstrapped hearing survey ratings. Lower rank indicates better performance. Top row shows ICC3 inter-rater reliability scores between the listeners.}
 \label{tab:scenario_ranks}
 \end{table*}
-
 
 \begin{lstlisting}[caption={\BPNoise}, label={lst:program0}]
 import("stdfaust.lib");
@@ -391,12 +440,15 @@ A notable result is that \JTFS excels for smooth pitch trajectories but underper
 
 \textbf{Weaknesses:} Whether PPL remains a useful metric for more complex synthesizers with higher-dimensional parameter spaces is an open question. Furthermore, the definition of ``critical parameters'' in PPL requires domain knowledge and judgment, introducing a degree of subjectivity. Additionally, the target sounds here originate from other synthesizers rather than from real-world recordings, which would introduce further complexity beyond the reach of simple DSP models.
 
-\textbf{Future Work:} This work is intended as a starting point for OOD evaluations. Sound-matching is not practical until successful OOD evaluations with pre-recorded targets (regardless of source) are achieved. Defining novel loss functions and combining their strengths is an interesting path forward. Use of heuristics such as adaptive optimizers or reinforcement learning would likely be an improvement over fixed-rate gradient descent, and more effective at navigating loss function landscapes.
+\textbf{Future Work:} This work is intended as a starting point for OOD evaluations. Sound-matching is not practical until successful OOD evaluations with pre-recorded targets (regardless of source) are achieved. Defining novel loss functions and combining their strengths is an interesting path forward. Use of heuristics such as adaptive optimizers or reinforcement learning~\cite{sutton1998reinforcement} would likely be an improvement over fixed-rate gradient descent, and more effective at navigating loss function landscapes.
 
 % \clearpage
-\bibliographystyle{alpha}
+% \bibliographystyle{alpha}
 
 \bibliography{references}
 
 
 \end{document}
+
+
+
