@@ -62,7 +62,7 @@
 \newcommand{\FMModvtwo}{\textbf{SineSine-AM}\xspace}
 \newcommand{\PitchBendUp}{\textbf{PitchBend-Up}\xspace}
 
-\title{Out-of-Domain Sound-Matching \\with Partial Parameter Loss}
+\title{Out-of-Domain Sound-Matching with\\ Partial Parameter Loss}
 
 % Note: Please do NOT use \thanks or a \footnote in any of the author markup
 
@@ -165,7 +165,7 @@ We propose an approach to OOD experiments that can be automatically evaluated, a
     \item We introduce Partial Parameter Loss (PPL) as the automated evaluation metric within this framework. PPL measures task-specific loss function performance---whether a loss function recovers the critical parameters of interest---rather than attempting to replace holistic perceptual evaluation. We validate PPL against blinded human listening tests and show its utility as a diagnostic tool for identifying loss function capabilities.
 \end{enumerate}
 
-Together, these contributions address significant gaps in the sound-matching literature. OOD experiments have been largely avoided despite their critical importance. By providing both an evaluation methodology and empirical evidence that synthesis-dependent behavior persists under OOD conditions, this work offers practical sound-matching suggestions and a framework for future OOD research.
+Together, these contributions address significant gaps in the sound-matching literature. OOD experiments have been largely avoided despite their critical importance. By providing both an evaluation methodology and empirical evidence that synthesis-dependent behavior persists under OOD conditions, this work offers practical sound-matching suggestions and a framework for future OOD research. The anonymized code for the replication of our experiments can be found in the supplementary material\footnote{The complete code will be available after publication}.
 
 
 \section{Background and Previous Work}
@@ -323,6 +323,7 @@ DTW   & 2 & 3 & 1 & 1 & 1 & 3 & 1 & 4 & 2 & 2 & 4 & 4 & 1 & 1 \\
 \label{tab:scenario_ranks}
 \end{table*}
 
+\begin{figure}[t]
 \begin{lstlisting}[caption={\BPNoise}, label={lst:program0}]
 import("stdfaust.lib");
 lp_cut = hslider("lp_cut",900,100,5000,5);
@@ -341,8 +342,7 @@ process = sawOsc(30):fi.lowpass(5, lp_cut):fi.highpass(5, hp_cut);
 \vspace{-0.4em}
 
 \begin{lstlisting}[caption={\FMMod. \FMModvtwo replaces 
-\texttt{sawOsc(car)} with \texttt{sineOsc(car)} and removes 
-line~4.}, label={lst:program3}]
+\texttt{sawOsc(car)} with \texttt{sineOsc(car)}}, label={lst:program3}]
 import("stdfaust.lib");
 carrier = hslider("car",car_a,car_b,car_c,1);
 amp = hslider("amp",amp_a,amp_b,amp_c,1);
@@ -371,7 +371,7 @@ sawOsc(f) = +(f/ma.SR) ~ ma.frac : +(0.5);
 incr_pitch(rate) = _ ~ +(rate/ma.SR) : exp;
 process = sineOsc(30 + incr_pitch(incr_speed) + sawOsc(pulse_rate) * 526);
 \end{lstlisting}
-
+\end{figure}
 \subsection{AM-Synthesizer Matching}
 \label{sec:am_sound_matching}
 
